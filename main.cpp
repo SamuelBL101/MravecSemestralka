@@ -2,14 +2,16 @@
 #include <SFML/Graphics.hpp>
 #include <unistd.h>
 #include "my_socket.h"
+#include "World.h"
 
 
 int main() {
-    MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 11333);
-    mySocket->sendData("Hello world");
+    //MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 11333);
+    //mySocket->sendData("Hello world");
 
-    int x = 100;
-    int y = 100;
+    auto *world = new World(10, 10);
+    std::cout << to_string(world->getBlock(0, 0)->getBlockType()) << std::endl;
+
     sf::RenderWindow window(sf::VideoMode(800, 600), "Langston's Ant");
     sf::Texture texture;
     if (!texture.loadFromFile("images/ant.png")) {
@@ -31,6 +33,6 @@ int main() {
         window.draw(image);
         window.display();
     }
-    mySocket->sendData("qqqqq");
+    //mySocket->sendData("qqqqq");
     return 0;
 }
