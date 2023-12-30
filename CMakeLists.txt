@@ -4,3 +4,9 @@ project(MravecSemestralka)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(MravecSemestralka main.cpp)
+
+set(SFML_STATIC_LIBRARIES TRUE)
+set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")
+find_package(SFML COMPONENTS system window graphics network audio REQUIRED)
+include_directories(c:/SFML-2.6.1/include)
+target_link_libraries(MravecSemestralka sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
