@@ -25,3 +25,21 @@ Block *Ant::getCurrentBlock() {
 void Ant::setCurrentBlockType(BlockType newBlock) {
     this->currentBlock->setBlockType(newBlock);
 }
+
+void Ant::move(enum Direction direction) {
+    switch (direction) {
+        case UP:
+            this->y++;
+            break;
+        case DOWN:
+            this->y--;
+            break;
+        case LEFT:
+            this->x--;
+            break;
+        case RIGHT:
+            this->x++;
+            break;
+    }
+
+}

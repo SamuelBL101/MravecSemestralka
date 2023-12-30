@@ -7,6 +7,9 @@
 
 #include "Block.h"
 #include "BlockType.h"
+enum Direction {
+    UP, DOWN, LEFT, RIGHT
+};
 
 class Ant {
 private:
@@ -23,6 +26,8 @@ public:
     Block *getCurrentBlock();
 
     void setCurrentBlockType(BlockType newBlockType);
+
+    void move(enum Direction direction);
 };
 
 
