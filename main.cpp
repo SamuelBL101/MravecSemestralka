@@ -1,8 +1,13 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <unistd.h>
+#include "my_socket.h"
 
 
-int main(){
+int main() {
+    MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 11333);
+    mySocket->sendData("Hello world");
+
     int x = 100;
     int y = 100;
     sf::RenderWindow window(sf::VideoMode(800, 600), "Langston's Ant");
@@ -25,8 +30,7 @@ int main(){
         window.clear();
         window.draw(image);
         window.display();
-
     }
-
+    mySocket->sendData("qqqqq");
     return 0;
 }
