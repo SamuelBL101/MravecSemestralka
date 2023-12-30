@@ -3,7 +3,9 @@ project(MravecSemestralka)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(MravecSemestralka main.cpp)
+add_executable(MravecSemestralka main.cpp
+        my_socket.cpp
+        my_socket.h)
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")
