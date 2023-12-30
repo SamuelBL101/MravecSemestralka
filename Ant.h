@@ -5,10 +5,12 @@
 #ifndef MRAVECSEMESTRALKA_ANT_H
 #define MRAVECSEMESTRALKA_ANT_H
 
+#include <SFML/Graphics/Sprite.hpp>
 #include "Block.h"
 #include "BlockType.h"
+
 enum Direction {
-    UP, DOWN, LEFT, RIGHT
+    UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3
 };
 
 class Ant {
@@ -16,6 +18,8 @@ private:
     int x;
     int y;
     Block *currentBlock;
+    Direction direction;
+    sf::Sprite sprite;
 public:
     Ant(int x, int y, Block *currentBlock);
 
@@ -23,11 +27,21 @@ public:
 
     int getY();
 
+    sf::Sprite getSprite();
+
+    void scale(float scaleX, float scaleY);
+
     Block *getCurrentBlock();
 
     void setCurrentBlockType(BlockType newBlockType);
 
+    void goTo(int x, int y);
+
     void move(enum Direction direction);
+
+    void move();
+
+    std::string toString();
 };
 
 

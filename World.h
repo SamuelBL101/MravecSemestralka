@@ -7,24 +7,30 @@
 
 #include "Block.h"
 #include "Ant.h"
+
 class World {
 private:
-    Block** map;
+    Block **map;
     int width;
     int height;
-    int blockWidth;
-    int blockHeight;
 public:
-    World(int width, int height, int numberOfBlockX, int numberOfBlockY);
+    World(int width, int height);
+
     int getWidth() const;
 
     int getHeight() const;
 
-    Block* getBlock(int x, int y);
+    Block *getBlock(int x, int y);
 
     void setBlock(int x, int y, BlockType blockType);
 
     void printWorld(sf::RenderWindow &window, Ant *ant);
+
+    Block** getMap();
+
+    sf::RectangleShape** getRectMap(float size);
+
+    void printAnt(sf::RenderWindow &window, Ant *ant);
 };
 
 

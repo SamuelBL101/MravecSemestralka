@@ -7,25 +7,21 @@
 
 
 int main() {
+    const float blockSize = 70.f;
     //MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 11333);
     //mySocket->sendData("Hello world");
 
-    auto *world = new World(800, 600, 10, 10);
-    Ant *ant = new Ant(5, 5, world->getBlock(5, 5));
-    std::cout << to_string(world->getBlock(0, 0)->getBlockType()) << std::endl;
-    world->setBlock(0, 0, BLACK);
-    world->setBlock(1, 0, BLACK);
-    world->setBlock(2, 0, WHITE);
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Langston's Ant");
-    sf::Texture texture;
-    if (!texture.loadFromFile("images/ant.jpg")) {
-        std::cout << "Could not load enemy texture" << std::endl;
-        return 0;
-    }
+    auto *world = new World(10, 10);
+    auto *ant = new Ant(5, 5, world->getBlock(5, 5));
+
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML Draw Map");
+
+
+    float scale = static_cast<float>(blockSize) / ant->getSprite().getTexture()->getSize().x;
+    ant->scale(scale, scale);
+    ant->goTo(ant->getX() * blockSize, ant->getY() * blockSize);
+
     if (window.isOpen()) {
-        window.clear();
-        world->printWorld(window, ant);
-        window.display();
     }
     while (window.isOpen()) {
         sf::Event event{};
@@ -33,14 +29,14 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-/*
-        window.clear(sf::Color::Black);
-
-        sf::Sprite image;
-        image.setTexture(texture);
-        */
-
-
+        window.clear();
+        for (int i = 0; i < 10; ++i) {
+            for (int j = 0; j < 10; ++j) {
+                window.draw(world->getRectMap(blockSize)[i][j]);
+            }
+        }
+        window.draw(ant->getSprite());
+        window.display();
     }
     //mySocket->sendData("qqqqq");
     return 0;

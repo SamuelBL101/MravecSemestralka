@@ -15,7 +15,6 @@ public:
 
     Block();
 
-
     Block(BlockType blockType): blockType(blockType) {};
 
     BlockType getBlockType();
