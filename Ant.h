@@ -13,6 +13,20 @@ enum Direction {
     UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3
 };
 
+inline std::string to_string(Direction direction) {
+    switch (direction) {
+        case UP:
+            return "UP";
+        case RIGHT:
+            return "RIGHT";
+        case DOWN:
+            return "DOWN";
+        default:
+            return "LEFT";
+    }
+}
+
+
 class Ant {
 private:
     int x;
@@ -20,6 +34,7 @@ private:
     Block *currentBlock;
     Direction direction;
     sf::Sprite sprite;
+    sf::Texture texture;
 public:
     Ant(int x, int y, Block *currentBlock);
 
@@ -40,6 +55,8 @@ public:
     void move(enum Direction direction);
 
     void move();
+
+    void setCurrentBlock(Block *newBlock);
 
     std::string toString();
 };

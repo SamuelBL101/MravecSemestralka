@@ -24,13 +24,9 @@ public:
 
     void setBlock(int x, int y, BlockType blockType);
 
-    void printWorld(sf::RenderWindow &window, Ant *ant);
-
-    Block** getMap();
-
     sf::RectangleShape** getRectMap(float size);
 
-    void printAnt(sf::RenderWindow &window, Ant *ant);
+    void setBlockType(int x, int y, BlockType blockType);
 };
 
 

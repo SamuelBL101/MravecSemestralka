@@ -15,3 +15,8 @@ BlockType Block::getBlockType() {
 Block::Block() {
     this->blockType = WHITE;
 }
+
+std::string Block::toString() {
+    std::string result = std::to_string(this->x) + " " + std::to_string(this->y);
+    return result;
+}
