@@ -18,9 +18,14 @@ int main() {
     world->setBlock(2, 0, WHITE);
     sf::RenderWindow window(sf::VideoMode(800, 600), "Langston's Ant");
     sf::Texture texture;
-    if (!texture.loadFromFile("images/ant.png")) {
+    if (!texture.loadFromFile("images/ant.jpg")) {
         std::cout << "Could not load enemy texture" << std::endl;
         return 0;
+    }
+    if (window.isOpen()) {
+        window.clear();
+        world->printWorld(window, ant);
+        window.display();
     }
     while (window.isOpen()) {
         sf::Event event{};
@@ -34,9 +39,7 @@ int main() {
         sf::Sprite image;
         image.setTexture(texture);
         */
-        window.clear();
-        world->printWorld(window, ant);
-        window.display();
+
 
     }
     //mySocket->sendData("qqqqq");
