@@ -7,7 +7,6 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <iostream>
 #include <SFML/Graphics/Sprite.hpp>
-#include <unistd.h>
 #include "World.h"
 
 World::World(int width, int height, int numberOfAnts) {

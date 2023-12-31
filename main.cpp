@@ -23,12 +23,10 @@ void antMovement(World &world) {
         // Perform background tasks here
         {
             std::unique_lock<std::mutex> locker(windowMutex);
-            cv.wait(locker);  // Wait for the signal to proceed
             window.clear();
             world.drawMap(&window);
             window.display();
         }
-
         // Other background tasks
     }
 }
@@ -40,7 +38,7 @@ void moving(World &world) {
         globalLock.unlock();
 
         cv.notify_one();  // Notify the waiting thread to proceed
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
