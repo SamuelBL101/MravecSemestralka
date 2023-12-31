@@ -8,15 +8,12 @@
 #include <string>
 
 enum BlockType {
-    ANT,
     WHITE,
     BLACK
 };
 
 inline std::string to_string(BlockType blockType) {
     switch (blockType) {
-        case ANT:
-            return "ANT";
         case WHITE:
             return "WHITE";
         case BLACK:

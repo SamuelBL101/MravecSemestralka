@@ -19,3 +19,6 @@ set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)
 include_directories(c:/SFML-2.6.1/include)
 target_link_libraries(MravecSemestralka sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
+
+find_package(Threads REQUIRED)
+target_link_libraries(MravecSemestralka Threads::Threads)

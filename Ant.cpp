@@ -6,19 +6,17 @@
 #include <iostream>
 #include "Ant.h"
 
-Ant::Ant(int x, int y, Block *currentBlock) {
-    //auto *texture = new sf::Texture();
-
+Ant::Ant(Block *currentBlock, Direction direction) {
     if (!this->texture.loadFromFile("images/ant.png")) {
         std::cout << "Could not load enemy texture" << std::endl;
-    } else {
-        std::cout << "Loaded enemy texture" << std::endl;
     }
-    this->sprite.setTexture(texture);
-    this->x = x;
-    this->y = y;
     this->currentBlock = currentBlock;
-    this->direction = UP;
+
+    this->x = currentBlock->getY();
+    this->y = currentBlock->getX();
+
+    this->sprite.setTexture(texture);
+    this->direction = direction;
 }
 
 int Ant::getX() {
@@ -71,7 +69,6 @@ void Ant::move() {
         case WHITE:
             this->setCurrentBlockType(BLACK);
             this->direction = (Direction) ((this->direction + 1) % 4);
-            //this->sprite.setRotation(this->sprite.getRotation() + 90);
             this->move(this->direction);
             this->goTo(this->x * 70.f, this->y * 70.f);
             break;
@@ -81,13 +78,15 @@ void Ant::move() {
             this->move(this->direction);
             this->goTo(this->x * 70.f, this->y * 70.f);
             break;
-        case ANT:
+        default:
+            std::cout << "Unknown block type" << std::endl;
             break;
     }
 }
 
 std::string Ant::toString() {
-    return "Ant: x: " + std::to_string(this->x) + " y: " + std::to_string(this->y) + " direction: " +
+    return "Ant: x: " + std::to_string(this->getX()) + " y: " +
+           std::to_string(this->getY()) + " direction: " +
            to_string(this->direction);
 }
 

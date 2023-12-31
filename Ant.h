@@ -29,14 +29,14 @@ inline std::string to_string(Direction direction) {
 
 class Ant {
 private:
-    int x;
-    int y;
     Block *currentBlock;
     Direction direction;
     sf::Sprite sprite;
     sf::Texture texture;
+    int x;
+    int y;
 public:
-    Ant(int x, int y, Block *currentBlock);
+    Ant(Block *currentBlock, Direction direction);
 
     int getX();
 

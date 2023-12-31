@@ -7,14 +7,18 @@
 
 #include "Block.h"
 #include "Ant.h"
+#include <vector>
 
 class World {
 private:
     Block **map;
     int width;
     int height;
+    std::vector<Ant*> *ants;
 public:
-    World(int width, int height);
+    World(int width, int height, int numberOfAnts);
+
+    void move();
 
     int getWidth() const;
 
@@ -25,6 +29,10 @@ public:
     void setBlock(int x, int y, BlockType blockType);
 
     sf::RectangleShape** getRectMap(float size);
+
+    void drawMap(sf::RenderWindow *window);
+
+    void addAnt(Ant *ant);
 
     void setBlockType(int x, int y, BlockType blockType);
 };
