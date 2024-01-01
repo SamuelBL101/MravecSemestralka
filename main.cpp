@@ -10,30 +10,28 @@ std::condition_variable cv;
 
 void antMovement(World &world) {
 
-        sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML Draw Map");
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML Draw Map");
 
-        while (window.isOpen()) {
+    while (window.isOpen() || world.getNumberOfAnts() > 0) {
 
-                sf::Event event;
-                while (window.pollEvent(event)) {
-                    if (event.type == sf::Event::Closed) {
-                        window.close();
-                        cv.notify_one(); // Notify the waiting thread to exit
-                        //std::exit(0);
-                        break;
-                    }
-                }
-                // Perform background tasks here
-            while (world.getNumberOfAnts() > 0) {
-                {
-                    std::unique_lock<std::mutex> locker(windowMutex);
-                    window.clear();
-                    world.drawMap(&window);
-                    window.display();
-                }
-                // Other background tasks
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+                cv.notify_one(); // Notify the waiting thread to exit
+                //std::exit(0);
+                break;
             }
         }
+
+        {
+            std::unique_lock<std::mutex> locker(windowMutex);
+            window.clear();
+            world.drawMap(&window);
+            window.display();
+        }
+        // Other background tasks
+    }
 }
 
 void moving(World &world) {
@@ -43,7 +41,7 @@ void moving(World &world) {
         globalLock.unlock();
 
         cv.notify_one();  // Notify the waiting thread to proceed
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
