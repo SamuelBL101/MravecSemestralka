@@ -10,18 +10,31 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "World.h"
 
-World::World(int width, int height, int numberOfAnts) {
+World::World(int width, int height, int numberOfAnts, bool random) {
     this->width = width;
     this->height = height;
 
     this->ants = new std::vector<Ant *>;
+    if (random){
+        std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    map = new Block *[height];
-    for (int i = 0; i < height; ++i) {
+        map = new Block *[height];
+        for (int i = 0; i < height; ++i) {
+            map[i] = new Block[width];
+            for (int j = 0; j < width; j++) {
+                BlockType blockType = (std::rand() % 2 == 0) ? BLACK : WHITE;
+                map[i][j] = Block(blockType);
+                map[i][j].setXandY(i, j);
+            }
+        }
+    } else  {
+        map = new Block *[height];
+        for (int i = 0; i < height; ++i) {
         map[i] = new Block[width];
         for (int j = 0; j < width; j++) {
             map[i][j] = Block(WHITE);
             map[i][j].setXandY(i, j);
+            }
         }
     }
 

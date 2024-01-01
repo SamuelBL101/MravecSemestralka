@@ -16,7 +16,7 @@ private:
     int height;
     std::vector<Ant*> *ants;
 public:
-    World(int width, int height, int numberOfAnts);
+    World(int width, int height, int numberOfAnts, bool random);
 
     World(std::string fileName, int numberOfAnts);
 

@@ -20,7 +20,12 @@ void antMovement(World &world) {
                 window.close();
                 cv.notify_one(); // Notify the waiting thread to exit
                 //std::exit(0);
-                break;
+                if (world.getNumberOfAnts() <= 0)
+                    break;
+                else {
+                    world.saveToFile("mapz.txt");
+                    std::exit(0);
+                }
             }
         }
 
@@ -64,6 +69,9 @@ int main() {
         tm2.join();
         world.saveToFile("mapz.txt");
     } else {
+        std::cout << "Vytvaranie mapy random alebo nie" << std::endl;
+        int random = 0;
+        std::cin >> random;
         int width = 20;
         std::cout << "Enter width of map: ";
         std::cin >> width;
@@ -73,7 +81,7 @@ int main() {
         int numberOfAnts = 3;
         std::cout << "Enter number of ants: ";
         std::cin >> numberOfAnts;
-        World world(width, height, numberOfAnts);
+        World world(width, height, numberOfAnts, random);
 
         std::thread tm1(antMovement, std::ref(world));
         std::thread tm2(moving, std::ref(world));
