@@ -8,8 +8,8 @@
 #include <string>
 
 enum BlockType {
-    WHITE,
-    BLACK
+    WHITE = 0,
+    BLACK = 1
 };
 
 inline std::string to_string(BlockType blockType) {

@@ -18,6 +18,8 @@ private:
 public:
     World(int width, int height, int numberOfAnts);
 
+    World(std::string fileName, int numberOfAnts);
+
     void move();
 
     int getWidth() const;
@@ -34,7 +36,11 @@ public:
 
     void addAnt(Ant *ant);
 
+    int getNumberOfAnts();
+
     void setBlockType(int x, int y, BlockType blockType);
+
+    void saveToFile(std::string fileName);
 };
 
 
