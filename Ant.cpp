@@ -39,7 +39,6 @@ void Ant::setCurrentBlockType(BlockType newBlock) {
 }
 
 void Ant::move(Direction direction) {
-    std::cout << "color of ant is " << to_string(this->color) << std::endl;
     switch (direction) {
         case UP:
             this->texture.loadFromFile("images/ant" + to_string(this->color) + ".png");
@@ -128,7 +127,5 @@ void Ant::changeBehavior() {
 }
 
 void Ant::setColor(ColoredAnt color) {
-    std::cout << "color is " << to_string(color) << std::endl;
     this->color = color;
-    std::cout << "new color is " << to_string(this->color) << std::endl;
 }

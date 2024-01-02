@@ -16,6 +16,8 @@ private:
     int height;
     std::vector<Ant *> *ants;
     int logicOfAnts = 0;
+
+    void collisionDetection();
 public:
     World(int width, int height, int numberOfAnts, bool random);
 

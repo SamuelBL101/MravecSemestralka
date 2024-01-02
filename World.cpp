@@ -85,25 +85,10 @@ void World::drawMap(sf::RenderWindow *window) {
         }
     }
 
+    this->collisionDetection();
+
     for (int i = 0; i < this->ants->size(); ++i) {
         window->draw(this->ants->at(i)->getSprite());
-        if (i < this->ants->size() - 1) {
-            if (ants->at(i)->getCurrentBlock() == ants->at(i + 1)->getCurrentBlock()) {
-                std::cout << "collision" << std::endl;
-                switch (logicOfAnts) {
-                    case 0:
-                        ants->erase(ants->begin() + i);
-                        break;
-                    case 1:
-                        ants->erase(ants->begin() + i);
-                        ants->erase(ants->begin() + i) + 1;
-                        break;
-                    case 2:
-                        ants->at(i)->changeBehavior();
-                        break;
-                }
-            }
-        }
         if (ants->at(i)->getX() < 0 || ants->at(i)->getX() >= this->width || ants->at(i)->getY() < 0 ||
             ants->at(i)->getY() >= this->height) {
             std::cout << "out of bounds" << std::endl;
@@ -193,6 +178,29 @@ void World::setAntsLogic(int logic) {
 
 void World::setAntColor(ColoredAnt color, int antIndex) {
     this->ants->at(antIndex)->setColor(color);
+}
+
+void World::collisionDetection() {
+    for (int i = 0; i < this->ants->size(); ++i) {
+        for (int j = i + 1; j < this->ants->size(); ++j) {
+            if (this->ants->at(i)->getCurrentBlock() == this->ants->at(j)->getCurrentBlock()) {
+                std::cout << this->ants->size() << " collision ";
+                switch (logicOfAnts) {
+                    case 0:
+                        ants->erase(ants->begin() + i);
+                        break;
+                    case 1:
+                        ants->erase(ants->begin() + i);
+                        ants->erase(ants->begin() + i) + 1;
+                        break;
+                    case 2:
+                        ants->at(i)->changeBehavior();
+                        break;
+                }
+                std::cout << this->ants->size() << std::endl;
+            }
+        }
+    }
 }
 
 
