@@ -14,7 +14,8 @@ private:
     Block **map;
     int width;
     int height;
-    std::vector<Ant*> *ants;
+    std::vector<Ant *> *ants;
+    int logicOfAnts = 0;
 public:
     World(int width, int height, int numberOfAnts, bool random);
 
@@ -30,7 +31,7 @@ public:
 
     void setBlock(int x, int y, BlockType blockType);
 
-    sf::RectangleShape** getRectMap(float size);
+    sf::RectangleShape **getRectMap(float size);
 
     void drawMap(sf::RenderWindow *window);
 
@@ -41,6 +42,10 @@ public:
     void setBlockType(int x, int y, BlockType blockType);
 
     void saveToFile(std::string fileName);
+
+    void setAntsLogic(int logic);
+
+    void setAntColor(ColoredAnt color, int antIndex);
 };
 
 

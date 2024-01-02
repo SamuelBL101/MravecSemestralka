@@ -13,6 +13,8 @@ add_executable(MravecSemestralka main.cpp
         World.h
         Ant.cpp
         Ant.h
+        Button.cpp
+        Button.h
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)

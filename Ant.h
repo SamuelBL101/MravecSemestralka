@@ -26,6 +26,27 @@ inline std::string to_string(Direction direction) {
     }
 }
 
+enum ColoredAnt {
+    A_BLACK = 0, A_GREEN = 1, A_BLUE = 2, A_YELLOW = 3, A_RED = 4
+};
+
+inline std::string to_string(ColoredAnt coloredAnt) {
+    switch (coloredAnt) {
+        case A_BLACK:
+            return "B";
+        case A_GREEN:
+            return "Green";
+        case A_BLUE:
+            return "Blue";
+        case A_YELLOW:
+            return "Yellow";
+        case A_RED:
+            return "Red";
+        default:
+            return "B";
+    }
+}
+
 
 class Ant {
 private:
@@ -33,10 +54,12 @@ private:
     Direction direction;
     sf::Sprite sprite;
     sf::Texture texture;
+    bool isInverse;
     int x;
     int y;
+    ColoredAnt color;
 public:
-    Ant(Block *currentBlock, Direction direction);
+    Ant(Block *currentBlock, Direction direction, bool isInverse);
 
     int getX();
 
@@ -59,6 +82,10 @@ public:
     void setCurrentBlock(Block *newBlock);
 
     std::string toString();
+
+    void changeBehavior();
+
+    void setColor(ColoredAnt color);
 };
 
 

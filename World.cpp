@@ -15,32 +15,26 @@ World::World(int width, int height, int numberOfAnts, bool random) {
     this->height = height;
 
     this->ants = new std::vector<Ant *>;
-    if (random){
+    if (random) {
         std::srand(static_cast<unsigned>(std::time(nullptr)));
-
-        map = new Block *[height];
-        for (int i = 0; i < height; ++i) {
-            map[i] = new Block[width];
-            for (int j = 0; j < width; j++) {
-                BlockType blockType = (std::rand() % 2 == 0) ? BLACK : WHITE;
-                map[i][j] = Block(blockType);
-                map[i][j].setXandY(i, j);
-            }
-        }
-    } else  {
-        map = new Block *[height];
-        for (int i = 0; i < height; ++i) {
+    }
+    map = new Block *[height];
+    for (int i = 0; i < height; ++i) {
         map[i] = new Block[width];
         for (int j = 0; j < width; j++) {
-            map[i][j] = Block(WHITE);
-            map[i][j].setXandY(i, j);
+            if (random) {
+                map[i][j] = Block((BlockType) (std::rand() % 2));
+            } else {
+                map[i][j] = Block(WHITE);
             }
+            map[i][j].setXandY(i, j);
         }
     }
 
     float scale = static_cast<float>(70.f) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant *a = new Ant(this->getBlock(width/2 + i, height/2 + i), UP);
+        Ant *a = new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true);
+        a->setColor(A_BLUE);
         a->scale(scale, scale);
         a->goTo(a->getX() * 70.f, a->getY() * 70.f);
         ants->push_back(a);
@@ -96,7 +90,18 @@ void World::drawMap(sf::RenderWindow *window) {
         if (i < this->ants->size() - 1) {
             if (ants->at(i)->getCurrentBlock() == ants->at(i + 1)->getCurrentBlock()) {
                 std::cout << "collision" << std::endl;
-                ants->erase(ants->begin() + i);
+                switch (logicOfAnts) {
+                    case 0:
+                        ants->erase(ants->begin() + i);
+                        break;
+                    case 1:
+                        ants->erase(ants->begin() + i);
+                        ants->erase(ants->begin() + i) + 1;
+                        break;
+                    case 2:
+                        ants->at(i)->changeBehavior();
+                        break;
+                }
             }
         }
         if (ants->at(i)->getX() < 0 || ants->at(i)->getX() >= this->width || ants->at(i)->getY() < 0 ||
@@ -116,7 +121,7 @@ void World::move() {
     for (auto &ant: *ants) {
         ant->move();
         ant->setCurrentBlock(this->getBlock(ant->getX(), ant->getY()));
-        std::cout << ant->toString() << std::endl;
+        //std::cout << ant->toString() << std::endl;
     }
 
 }
@@ -174,11 +179,20 @@ World::World(std::string fileName, int numberOfAnts) {
     file.close();
     float scale = static_cast<float>(70.f) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant *a = new Ant(this->getBlock(width/2 + i, height/2 + i), UP);
+        Ant *a = new Ant(this->getBlock(width / 2 + i, height / 2 + i), UP, true);
+        a->setColor(A_BLUE);
         a->scale(scale, scale);
         a->goTo(a->getX() * 70.f, a->getY() * 70.f);
         ants->push_back(a);
     }
+}
+
+void World::setAntsLogic(int logic) {
+    this->logicOfAnts = logic;
+}
+
+void World::setAntColor(ColoredAnt color, int antIndex) {
+    this->ants->at(antIndex)->setColor(color);
 }
 
 
