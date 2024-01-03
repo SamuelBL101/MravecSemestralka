@@ -43,6 +43,8 @@ public:
 
     void setBlockType(int x, int y, BlockType blockType);
 
+    void loadFromFile(std::string& fileName);
+
     void saveToFile(std::string fileName);
 
     void setAntsLogic(int logic);
