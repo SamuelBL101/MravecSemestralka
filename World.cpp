@@ -136,11 +136,7 @@ void World::saveToFile(std::string fileName) {
 
 }
 
-int World::getNumberOfAnts() {
-    return this->ants->size();
-}
-
-World::World(std::string fileName, int numberOfAnts) {
+void World::loadFromFile(std::string& fileName) {
     std::ifstream file;
     file.open(fileName);
     if (!file.is_open()) {
@@ -162,6 +158,14 @@ World::World(std::string fileName, int numberOfAnts) {
         }
     }
     file.close();
+}
+
+int World::getNumberOfAnts() {
+    return this->ants->size();
+}
+
+World::World(std::string fileName, int numberOfAnts) {
+    this->loadFromFile(fileName);
     float scale = static_cast<float>(70.f) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
         Ant *a = new Ant(this->getBlock(width / 2 + i, height / 2 + i), UP, true);

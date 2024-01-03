@@ -4,9 +4,12 @@
 #include <mutex>
 #include <condition_variable>
 #include "World.h"
+#include "my_socket.h"
 #include <Windows.h>
 #include "Button.h"
 #include <string>
+#include <sstream>
+#include <fstream>
 
 std::mutex windowMutex;
 std::condition_variable cv;
@@ -21,7 +24,7 @@ void antMovement(World &world) {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
-                cv.notify_one(); // Notify the waiting thread to exit
+                cv.notify_one();
                 if (world.getNumberOfAnts() <= 0)
                     break;
                 else {
@@ -45,12 +48,54 @@ void moving(World &world) {
         world.move();
         globalLock.unlock();
 
-        cv.notify_one();  // Notify the waiting thread to proceed
+        cv.notify_one();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
+std::string convertFileToString(const std::string& filename) {
+    std::ifstream file(filename);
+    std::stringstream buffer;
+    std::string line;
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            buffer << line << ";";
+        }
+        file.close();
+    }
+
+    return buffer.str();
+}
+
+void writeStringToFile(const std::string& str, const std::string& filename) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (char c : str) {
+            if (c == ';') {
+                file << '\n';
+            } else {
+                file << c;
+            }
+        }
+        file.close();
+    }
+}
+
 int main() {
+    //sokety
+
+//    MySocket* mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 18888);
+//    std::string message = "Toto je moj odosielany retazec";
+//    std::cout << message << std::endl;
+//    mySocket->sendData(message);
+//    std::cout << message << " 2" << std::endl;
+//    mySocket->sendData(message);
+//    delete mySocket;
+//    mySocket = nullptr;
+
+    //sokety-end
+
     bool loadMapFromFile = false;
     // FALSE = biela mapa, TRUE = random mapa
     bool typeOfMap = false;
@@ -161,9 +206,9 @@ int main() {
     }
     window.close();
 
-    std::cout << "hi";
+    //std::cout << "hi";
     std::cout << parameters[1];
-    std::cout << "hi";
+    //std::cout << "hi";
     if (loadMapFromFile) {
         World world(parameters[1], std::stoi(parameters[0]));
         world.setAntsLogic(logics);
