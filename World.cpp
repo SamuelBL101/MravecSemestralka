@@ -165,7 +165,7 @@ World::World(std::string fileName, int numberOfAnts) {
     float scale = static_cast<float>(70.f) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
         Ant *a = new Ant(this->getBlock(width / 2 + i, height / 2 + i), UP, true);
-        a->setColor(A_BLUE);
+        a->setColor(A_BLACK);
         a->scale(scale, scale);
         a->goTo(a->getX() * 70.f, a->getY() * 70.f);
         ants->push_back(a);
