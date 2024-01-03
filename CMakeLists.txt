@@ -3,7 +3,8 @@ project(MravecSemestralka)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(MravecSemestralka main.cpp
+add_executable(MravecSemestralka
+        main.cpp
         my_socket.cpp
         my_socket.h
         BlockType.h

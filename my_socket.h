@@ -19,6 +19,8 @@ public:
 
     void sendEndMessage();
 
+    std::string receiveData() const;
+
 protected:
     MySocket(SOCKET socket);
 
