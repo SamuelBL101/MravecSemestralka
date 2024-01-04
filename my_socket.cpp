@@ -87,12 +87,13 @@ void MySocket::sendData(const std::string &data) {
     free(buffer);
     buffer = NULL;
 }
-//TODO check if it works
+
 std::string MySocket::receiveData() const {
-    char buffer[1024];
+    char buffer[1024*2];
     ZeroMemory(buffer, sizeof(buffer));
 
     int iResult = recv(connectSocket, buffer, sizeof(buffer), 0);
+
     if (iResult > 0) {
         return std::string(buffer, iResult);
     } else if (iResult == 0) {

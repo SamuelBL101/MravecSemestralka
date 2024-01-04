@@ -67,55 +67,49 @@ std::string convertFileToString(const std::string& filename) {
     return buffer.str();
 }
 
+void convertStringToFile(const char *str) {
+    std::istringstream iss(str);
+    std::string filename;
+    std::getline(iss, filename, ';');
 
-void downloadMap(std::string& mapName) {
-
-
-    MySocket* mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 18888);
-    std::string message = "Toto je moj odosielany retazec";
-    std::cout << message << std::endl;
-    mySocket->sendData(message);
-    std::cout << message << " 2" << std::endl;
-    mySocket->sendData(message);
-    delete mySocket;
-    mySocket = nullptr;
-}
-
-void downloadMap(const std::string& server, int port, const std::string& filename) {
-    // Create a connection to the server
-    MySocket* mySocket = MySocket::createConnection(server, port);
-
-    // Send a request for the map
-    std::string request = "GET /map";
-    mySocket->sendData(request);
-
-    // Receive the map data
-    //std::string mapData = mySocket->;
-
-    // Write the map data to a file
     std::ofstream file(filename);
     if (file.is_open()) {
-        //file << mapData;
+        std::string line;
+        while (std::getline(iss, line, ';')) {
+            file << line << '\n';
+        }
         file.close();
     }
-
-    // Clean up
-    delete mySocket;
-    mySocket = nullptr;
+    std::cout << "File saved: " << filename << "\n";
 }
 
-void uploadMap(std::string& filename, int port) {
+void downloadMap(std::string& mapName, short port) {
+    MySocket* mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 18888);
+    std::string message = "GET/" + mapName;
+    std::cout << "Sending: " << message << std::endl;
+    mySocket->sendData(message);
+    std::string response = mySocket->receiveData();
+    delete mySocket;
+    mySocket = nullptr;
+    convertStringToFile(response.c_str());
+}
+
+void uploadMap(std::string& filename, short port) {
     MySocket* mySocket = MySocket::createConnection("frios2.fri.uniza.sk", port);
-    std::string message =filename + ";" + convertFileToString(filename);
-    //std::cout << message << std::endl;
+    std::string message = filename + ";" + convertFileToString(filename);
     mySocket->sendData(message);
     delete mySocket;
     mySocket = nullptr;
 }
 
 int main() {
-    std::string filename = "mapz.txt";
-    uploadMap(filename, 18888);
+//    const char *str = "suborrr.txt;3 3;0 1 0;1 1 1;0 0 0;";
+//    std::string filename = "subor12345.txt";
+//    downloadMap(filename, 18888);
+
+//    std::string filename2 = "mapz.txt";
+//    uploadMap(filename2, 18888);
+
 
     bool loadMapFromFile = false;
     // FALSE = biela mapa, TRUE = random mapa
