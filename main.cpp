@@ -48,26 +48,24 @@ void antMovement(World &world) {
             window.display();
         }
     }
-    printf("hihi samo zaspal1111485651615156sd1v56d1f5d");
 }
 
 void moving(World &world) {
     while (world.getNumberOfAnts() > 0) {
         //if(!world.isPaused()){
-            std::unique_lock<std::mutex> globalLock(windowMutex);
-            while(world.isPaused()){
-                cv.wait(globalLock);
-            }
-            world.move();
-            globalLock.unlock();
-            cv.notify_one();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-       // }
+        std::unique_lock<std::mutex> globalLock(windowMutex);
+        while (world.isPaused()) {
+            cv.wait(globalLock);
+        }
+        world.move();
+        globalLock.unlock();
+        cv.notify_one();
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        // }
     }
-    printf("hihi samo zaspal22222222222222222222222&");
 }
 
-std::string convertFileToString(const std::string& filename) {
+std::string convertFileToString(const std::string &filename) {
     std::ifstream file(filename);
     std::stringstream buffer;
     std::string line;
@@ -97,8 +95,8 @@ void convertStringToFile(const char *str) {
     std::cout << "File saved: " << filename << "\n";
 }
 
-void downloadMap(std::string& mapName, short port) {
-    MySocket* mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 18888);
+void downloadMap(std::string &mapName, short port) {
+    MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", 18888);
     std::string message = "GET/" + mapName;
     std::cout << "Sending: " << message << std::endl;
     mySocket->sendData(message);
@@ -108,8 +106,8 @@ void downloadMap(std::string& mapName, short port) {
     convertStringToFile(response.c_str());
 }
 
-void uploadMap(std::string& filename, short port) {
-    MySocket* mySocket = MySocket::createConnection("frios2.fri.uniza.sk", port);
+void uploadMap(std::string &filename, short port) {
+    MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", port);
     std::string message = filename + ";" + convertFileToString(filename);
     mySocket->sendData(message);
     delete mySocket;
@@ -131,7 +129,7 @@ int main() {
     // 0 = one dies, 1 = all dies, 2 = change of logic
     int logics = 0;
 
-    std::vector<Button *> buttons;
+    std::vector<Button> buttons;
     std::vector<int> colorsOfAnts;
 
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Map editor");
@@ -161,10 +159,10 @@ int main() {
         sf::Event event;
         while (window.pollEvent(event)) {
             for (int i = 0; i < buttons.size(); ++i) {
-                if (buttons.at(i)->handleEvent(event)) {
+                if (buttons.at(i).handleEvent(event)) {
                     colorsOfAnts.at(i)++;
                     colorsOfAnts.at(i) %= 5;
-                    buttons.at(i)->setText(to_string(static_cast<ColoredAnt>(colorsOfAnts.at(i))));
+                    buttons.at(i).setText(to_string(static_cast<ColoredAnt>(colorsOfAnts.at(i))));
                     std::cout << colorsOfAnts.at(i) << std::endl;
                 }
             }
@@ -203,7 +201,7 @@ int main() {
                         step += 1;
                         if (step == 1) {
                             for (int i = 0; i < std::stoi(parameters[0]); ++i) {
-                                buttons.push_back(new Button(100 + i * 150, 400, 100, 50, "Ant " + std::to_string(i)));
+                                buttons.push_back(Button(100 + i * 150, 400, 100, 50, "Ant " + std::to_string(i)));
                                 colorsOfAnts.push_back(0);
                             }
                         }
@@ -226,7 +224,7 @@ int main() {
         window.clear(sf::Color::White);
         loadMapButton.draw(window);
         for (auto &button: buttons) {
-            button->draw(window);
+            button.draw(window);
         }
         typeOfMapButton.draw(window);
         behaviorButton1.draw(window);
@@ -266,9 +264,7 @@ int main() {
 
         tm1.join();
         tm2.join();
-        printf("hihi samo zaspal");
         world.saveToFile("mapz.txt");
     }
-
     return 0;
 }
