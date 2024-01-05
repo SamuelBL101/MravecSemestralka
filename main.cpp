@@ -17,11 +17,19 @@ std::condition_variable cv;
 void antMovement(World &world) {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML Draw Map");
 
-
-    while (window.isOpen() || world.getNumberOfAnts() > 0) {
+    while (window.isOpen() && world.getNumberOfAnts() > 0) {
 
         sf::Event event;
         while (window.pollEvent(event)) {
+            if (event.type == sf::Event::TextEntered) {
+                if (event.text.unicode < 128) {
+                    if (event.text.unicode == 112) {
+                        world.setPaused(!world.isPaused());
+                        cv.notify_one();
+                    }
+                }
+            }
+
             if (event.type == sf::Event::Closed) {
                 window.close();
                 cv.notify_one();
@@ -40,17 +48,23 @@ void antMovement(World &world) {
             window.display();
         }
     }
+    printf("hihi samo zaspal1111485651615156sd1v56d1f5d");
 }
 
 void moving(World &world) {
     while (world.getNumberOfAnts() > 0) {
-        std::unique_lock<std::mutex> globalLock(windowMutex);
-        world.move();
-        globalLock.unlock();
-
-        cv.notify_one();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //if(!world.isPaused()){
+            std::unique_lock<std::mutex> globalLock(windowMutex);
+            while(world.isPaused()){
+                cv.wait(globalLock);
+            }
+            world.move();
+            globalLock.unlock();
+            cv.notify_one();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+       // }
     }
+    printf("hihi samo zaspal22222222222222222222222&");
 }
 
 std::string convertFileToString(const std::string& filename) {
@@ -252,6 +266,7 @@ int main() {
 
         tm1.join();
         tm2.join();
+        printf("hihi samo zaspal");
         world.saveToFile("mapz.txt");
     }
 
