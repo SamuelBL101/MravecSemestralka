@@ -31,12 +31,12 @@ World::World(int width, int height, int numberOfAnts, bool random) {
         }
     }
 
-    float scale = static_cast<float>(70.f) / 960;
+    float scale = static_cast<float>(map[0][0].getWidth()) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
         Ant a = Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true);
         a.setColor(A_BLUE);
         a.scale(scale, scale);
-        a.goTo(a.getX() * 70.f, a.getY() * 70.f);
+        a.goTo(a.getX() * map[0][0].getWidth(), a.getY() * map[0][0].getHeight());
         ants.push_back(a);
     }
 }

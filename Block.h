@@ -13,6 +13,8 @@ private:
     BlockType blockType;
     int x;
     int y;
+    int width;
+    int height;
 public:
 
     Block();
@@ -37,6 +39,18 @@ public:
     int getY() {
         return this->y;
     }
+
+    void setX(int x);
+
+    void setY(int y);
+
+    int getWidth() const;
+
+    void setWidth(int width);
+
+    int getHeight() const;
+
+    void setHeight(int height);
 };
 
 
