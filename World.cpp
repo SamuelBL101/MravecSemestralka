@@ -207,5 +207,13 @@ void World::collisionDetection() {
     }
 }
 
+bool World::isPaused() const {
+    return paused;
+}
+
+void World::setPaused(bool paused) {
+    World::paused = paused;
+}
+
 
 

@@ -16,8 +16,9 @@ private:
     int height;
     std::vector<Ant *> *ants;
     int logicOfAnts = 0;
-
+    bool paused = false;
     void collisionDetection();
+
 public:
     World(int width, int height, int numberOfAnts, bool random);
 
@@ -50,6 +51,11 @@ public:
     void setAntsLogic(int logic);
 
     void setAntColor(ColoredAnt color, int antIndex);
+
+    bool isPaused() const;
+
+    void setPaused(bool paused);
+
 };
 
 
