@@ -13,7 +13,33 @@ BlockType Block::getBlockType() {
 }
 
 Block::Block() {
+    this->width = 70;
+    this->height = 70;
     this->blockType = WHITE;
+}
+
+void Block::setX(int x) {
+    this->x = x;
+}
+
+void Block::setY(int y) {
+    this->y = y;
+}
+
+int Block::getWidth() const {
+    return width;
+}
+
+void Block::setWidth(int width) {
+    Block::width = width;
+}
+
+int Block::getHeight() const {
+    return height;
+}
+
+void Block::setHeight(int height) {
+    Block::height = height;
 }
 
 std::string Block::toString() {
