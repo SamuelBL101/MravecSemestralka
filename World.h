@@ -11,10 +11,10 @@
 
 class World {
 private:
-    Block **map;
+    std::vector<std::vector<Block>> map;
     int width;
     int height;
-    std::vector<Ant *> *ants;
+    std::vector<Ant> ants;
     int logicOfAnts = 0;
     bool paused = false;
     void collisionDetection();
@@ -34,11 +34,11 @@ public:
 
     void setBlock(int x, int y, BlockType blockType);
 
-    sf::RectangleShape **getRectMap(float size);
+    std::vector<std::vector<sf::RectangleShape>> getRectMap(float size);
 
     void drawMap(sf::RenderWindow *window);
 
-    void addAnt(Ant *ant);
+    void addAnt(Ant ant);
 
     int getNumberOfAnts();
 
