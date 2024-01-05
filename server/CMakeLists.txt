@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(Sockets_Server C)
+project(server C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -8,7 +8,7 @@ find_package(Threads REQUIRED)
 include_directories(.)
 include_directories(pos_sockets)
 
-add_executable(Sockets_Server
+add_executable(server
         pos_sockets/active_socket.c
         pos_sockets/active_socket.h
         pos_sockets/char_buffer.c
@@ -19,4 +19,4 @@ add_executable(Sockets_Server
         buffer.h
         main.c)
 
-target_link_libraries(Sockets_Server Threads::Threads)
+target_link_libraries(server Threads::Threads)
