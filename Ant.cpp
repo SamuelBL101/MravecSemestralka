@@ -130,3 +130,7 @@ void Ant::changeBehavior() {
 void Ant::setColor(ColoredAnt color) {
     this->color = color;
 }
+
+int Ant::getColor() {
+    return this->color;
+}

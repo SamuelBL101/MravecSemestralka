@@ -8,7 +8,12 @@
 #include <iostream>
 #include <fstream>
 #include <SFML/Graphics/Sprite.hpp>
+#include <thread>
+#include <cmath>
+#include <SFML/Window/Mouse.hpp>
 #include "World.h"
+#include "Button.h"
+#include "my_socket.h"
 
 World::World(int width, int height, int numberOfAnts, bool random, float size) {
     this->width = width;
@@ -87,13 +92,18 @@ void World::drawMap(sf::RenderWindow *window) {
     this->collisionDetection();
 
     for (int i = 0; i < this->ants.size(); ++i) {
-        window->draw(this->ants.at(i).getSprite());
         if (ants.at(i).getX() < 0 || ants.at(i).getX() >= this->width || ants.at(i).getY() < 0 ||
             ants.at(i).getY() >= this->height) {
             std::cout << "out of bounds" << std::endl;
-            ants.erase(ants.begin() + i);
+            std::swap(ants.at(i), ants.at(ants.size() - 1));
+            ants.pop_back();
         }
+
     }
+//    for (int i = 0; i < this->ants.size(); ++i) {
+//        window->draw(this->ants.at(i).getSprite());
+//    }
+
 }
 
 void World::addAnt(Ant ant) {
@@ -104,7 +114,6 @@ void World::move() {
     for (auto &ant: ants) {
         ant.move();
         ant.setCurrentBlock(this->getBlock(ant.getX(), ant.getY()));
-        //std::cout << ant->toString() << std::endl;
     }
 
 }
@@ -188,7 +197,9 @@ void World::setAntColor(ColoredAnt color, int antIndex) {
 void World::collisionDetection() {
     for (int i = 0; i < this->ants.size(); ++i) {
         for (int j = i + 1; j < this->ants.size(); ++j) {
-            if (this->ants.at(i).getCurrentBlock() == this->ants.at(j).getCurrentBlock()) {
+            if (this->ants.at(i).getCurrentBlock() == this->ants.at(j).getCurrentBlock() &&
+                this->ants.at(i).getColor() !=
+                this->ants.at(j).getColor()) {
                 std::cout << this->ants.size() << " collision ";
                 switch (logicOfAnts) {
                     case 0:
@@ -196,7 +207,7 @@ void World::collisionDetection() {
                         break;
                     case 1:
                         ants.erase(ants.begin() + i);
-                        ants.erase(ants.begin() + i) + 1;
+                        ants.erase(ants.begin() + j);
                         break;
                     case 2:
                         ants.at(i).changeBehavior();
@@ -259,5 +270,188 @@ void World::changeAntBehaviour() {
     }
 }
 
+void World::changeBehaviourOfAnts() {
+    for (auto &ant: this->ants) {
+        ant.changeBehavior();
+    }
+}
+
+void World::threadAntMovement() {
+    while (this->getNumberOfAnts() > 0) {
+        std::unique_lock<std::mutex> globalLock(this->worldMutex);
+        while (this->isPaused()) {
+            this->worldCv.wait(globalLock);
+        }
+        this->move();
+        globalLock.unlock();
+        this->worldCv.notify_one();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    }
+}
+
+void World::threadDisplay() {
+    sf::RenderWindow window(
+            sf::VideoMode(sf::VideoMode::getDesktopMode().width, 0.9 * sf::VideoMode::getDesktopMode().height),
+            "SFML Fullscreen Windowed");
+    window.setPosition(sf::Vector2i(0, 0));
+    Button uploadMapButton(20, sf::VideoMode::getDesktopMode().height * 0.85, 100, 50, "Upload Map");
+
+    while (window.isOpen() && this->getNumberOfAnts() > 0) {
+
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (uploadMapButton.handleEvent(event)) {
+                std::string filename = "mapz.txt";
+                uploadMap(filename, 18888);
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    if (event.mouseButton.x >= 0 && event.mouseButton.x <= this->getWidth() * this->getSizeOfBlock() &&
+                        event.mouseButton.y >= 0 &&
+                        event.mouseButton.y <= this->height * this->sizeOfBlock) {
+                        int blockClickedX = std::floor(event.mouseButton.x / this->sizeOfBlock);
+                        int blockClickedY = std::floor(event.mouseButton.y / this->sizeOfBlock);
+                        this->changeBlockType(blockClickedX, blockClickedY);
+                    }
+                }
+            }
+            if (event.type == sf::Event::TextEntered) {
+                if (event.text.unicode < 128) {
+                    if (event.text.unicode == 112) {
+                        this->setPaused(!this->isPaused());
+                        this->worldCv.notify_one();
+                    }
+                    if (event.text.unicode == 105) {
+                        this->changeAntBehaviour();
+                    }
+
+                }
+            }
+
+            if (event.type == sf::Event::Closed) {
+                window.close();
+                this->worldCv.notify_one();
+                if (this->getNumberOfAnts() <= 0)
+                    break;
+                else {
+                    this->saveToFile("mapz.txt");
+                    std::exit(0);
+                }
+            }
+        }
+        {
+            std::unique_lock<std::mutex> locker(this->worldMutex);
+            window.clear();
+            this->drawMap(&window);
+            uploadMapButton.draw(window);
+            window.display();
+        }
+    }
+}
+
+void World::uploadMap(std::string &mapName, short port) {
+
+    this->saveToFile(mapName);
+    MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", port);
+    std::string message = mapName + ";" + convertFileToString(mapName);
+    mySocket->sendData(message);
+    delete mySocket;
+    mySocket = nullptr;
+
+}
+
+std::string World::convertFileToString(const std::string &filename) {
+    std::ifstream file(filename);
+    std::stringstream buffer;
+    std::string line;
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            buffer << line << ";";
+        }
+        file.close();
+    }
+    return buffer.str();
+
+}
+
+std::vector<Ant> World::getAnts() {
+    return this->ants;
+}
 
 
+//std::condition_variable World::getWorldCv() {
+//    return worldCv;
+//}
+//void antMovement(World &world) {
+//    sf::RenderWindow window(
+//            sf::VideoMode(sf::VideoMode::getDesktopMode().width, 0.9 * sf::VideoMode::getDesktopMode().height),
+//            "SFML Fullscreen Windowed");
+//    window.setPosition(sf::Vector2i(0, 0));
+//    Button uploadMapButton(20, sf::VideoMode::getDesktopMode().height * 0.85, 100, 50, "Upload Map");
+//
+//    while (window.isOpen() && world.getNumberOfAnts() > 0) {
+//
+//        sf::Event event;
+//        while (window.pollEvent(event)) {
+//            if (uploadMapButton.handleEvent(event)){
+//                std::string filename = "mapz.txt";
+//                uploadMap(world, filename, 18888);
+//            }
+//            if (event.type == sf::Event::MouseButtonPressed) {
+//                if (event.mouseButton.button == sf::Mouse::Left) {
+//                    if (event.mouseButton.x >= 0 && event.mouseButton.x <= world.getWidth() * world.getSizeOfBlock() &&
+//                        event.mouseButton.y >= 0 &&
+//                        event.mouseButton.y <= world.getHeight() * world.getSizeOfBlock()) {
+//                        int blockClickedX = std::floor(event.mouseButton.x / world.getSizeOfBlock());
+//                        int blockClickedY = std::floor(event.mouseButton.y / world.getSizeOfBlock());
+//                        world.changeBlockType(blockClickedX, blockClickedY);
+//                    }
+//                }
+//            }
+//            if (event.type == sf::Event::TextEntered) {
+//                if (event.text.unicode < 128) {
+//                    if (event.text.unicode == 112) {
+//                        world.setPaused(!world.isPaused());
+//                        world.getWorldCv().notify_one();
+//                    }
+//                    if (event.text.unicode == 105) {
+//                        world.changeAntBehaviour();
+//                    }
+//
+//                }
+//            }
+//
+//            if (event.type == sf::Event::Closed) {
+//                window.close();
+//                world.getWorldCv().notify_one();
+//                if (world.getNumberOfAnts() <= 0)
+//                    break;
+//                else {
+//                    world.saveToFile("mapz.txt");
+//                    std::exit(0);
+//                }
+//            }
+//        }
+//        {
+//            std::unique_lock<std::mutex> locker(windowMutex);
+//            window.clear();
+//            world.drawMap(&window);
+//            uploadMapButton.draw(window);
+//            window.display();
+//        }
+//    }
+//}
+//
+//void moving(World &world) {
+//    while (world.getNumberOfAnts() > 0) {
+//        std::unique_lock<std::mutex> globalLock(windowMutex);
+//        while (world.isPaused()) {
+//            cv.wait(globalLock);
+//        }
+//        world.move();
+//        globalLock.unlock();
+//        cv.notify_one();
+//        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+//    }
+//}
