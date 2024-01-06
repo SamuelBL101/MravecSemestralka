@@ -10,9 +10,10 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "World.h"
 
-World::World(int width, int height, int numberOfAnts, bool random) {
+World::World(int width, int height, int numberOfAnts, bool random, float size) {
     this->width = width;
     this->height = height;
+    this->sizeOfBlock = size;
 
     this->ants = std::vector<Ant>();
     if (random) {
@@ -31,12 +32,12 @@ World::World(int width, int height, int numberOfAnts, bool random) {
         }
     }
 
-    float scale = static_cast<float>(map[0][0].getWidth()) / 960;
+    float scale = static_cast<float>(size) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant a = Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true);
+        Ant a = Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
         a.setColor(A_BLUE);
         a.scale(scale, scale);
-        a.goTo(a.getX() * map[0][0].getWidth(), a.getY() * map[0][0].getHeight());
+        a.goTo(a.getX() * size, a.getY() * size);
         ants.push_back(a);
     }
 }
@@ -79,8 +80,8 @@ void World::setBlockType(int x, int y, BlockType blockType) {
 }
 
 void World::drawMap(sf::RenderWindow *window) {
-    //sf::RectangleShape **rectMap = this->getRectMap(70.f);
-    std::vector<std::vector<sf::RectangleShape>> rectMap = this->getRectMap(70.f);
+    //sf::RectangleShape **rectMap = this->getRectMap();
+    std::vector<std::vector<sf::RectangleShape>> rectMap = this->getRectMap(this->sizeOfBlock);
     for (int i = 0; i < this->getHeight(); ++i) {
         for (int j = 0; j < this->getWidth(); ++j) {
             window->draw(rectMap[i][j]);
@@ -167,14 +168,15 @@ int World::getNumberOfAnts() {
     return this->ants.size();
 }
 
-World::World(std::string fileName, int numberOfAnts) {
+World::World(std::string fileName, int numberOfAnts, float size) {
+    this->sizeOfBlock = size;
     this->loadFromFile(fileName);
-    float scale = static_cast<float>(70.f) / 960;
+    float scale = static_cast<float>(this->sizeOfBlock) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant a = Ant(this->getBlock(rand() % 10, rand() % 10), UP, true);
+        Ant a = Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
         a.setColor(A_BLACK);
         a.scale(scale, scale);
-        a.goTo(a.getX() * 70.f, a.getY() * 70.f);
+        a.goTo(a.getX() * this->sizeOfBlock, a.getY() * this->sizeOfBlock);
         ants.push_back(a);
     }
 }
@@ -216,6 +218,10 @@ bool World::isPaused() const {
 
 void World::setPaused(bool paused) {
     World::paused = paused;
+}
+
+void World::setSizeOfBlock(float size) {
+    this->sizeOfBlock = size;
 }
 
 

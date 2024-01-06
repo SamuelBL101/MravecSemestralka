@@ -15,7 +15,9 @@ std::mutex windowMutex;
 std::condition_variable cv;
 
 void antMovement(World &world) {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML Draw Map");
+    sf::RenderWindow window(
+            sf::VideoMode(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height),
+            "Langton's Ant");
 
     while (window.isOpen() && world.getNumberOfAnts() > 0) {
 
@@ -132,7 +134,8 @@ int main() {
     std::vector<Button> buttons;
     std::vector<int> colorsOfAnts;
 
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Map editor");
+    sf::RenderWindow window(
+            sf::VideoMode(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height), "Map editor");
     sf::Font font;
     font.loadFromFile("fonts/OpenSans-Light.ttf");
 
@@ -236,8 +239,12 @@ int main() {
     //std::cout << "hi";
     std::cout << parameters[1];
     //std::cout << "hi";
+    int lower = sf::VideoMode::getDesktopMode().width < sf::VideoMode::getDesktopMode().height
+                ? sf::VideoMode::getDesktopMode().width
+                : sf::VideoMode::getDesktopMode().height;
+    lower -= 100;
     if (loadMapFromFile) {
-        World world(parameters[1], std::stoi(parameters[0]));
+        World world(parameters[1], std::stoi(parameters[0]), 30.f);
         world.setAntsLogic(logics);
         std::thread tm1(antMovement, std::ref(world));
         std::thread tm2(moving, std::ref(world));
@@ -251,9 +258,10 @@ int main() {
         width = std::stoi(parameters[2]);
         int height = 20;
         height = std::stoi(parameters[3]);
+        float size = lower / (width > height ? width : height);
         int numberOfAnts = 3;
         numberOfAnts = std::stoi(parameters[0]);
-        World world(width, height, numberOfAnts, typeOfMap);
+        World world(width, height, numberOfAnts, typeOfMap, 30.f);
         world.setAntsLogic(logics);
         for (int i = 0; i < numberOfAnts; ++i) {
             world.setAntColor(static_cast<ColoredAnt>(colorsOfAnts.at(i)), i);

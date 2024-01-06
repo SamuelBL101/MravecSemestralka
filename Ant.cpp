@@ -6,8 +6,9 @@
 #include <iostream>
 #include "Ant.h"
 
-Ant::Ant(Block *currentBlock, Direction direction, bool isInverse) {
+Ant::Ant(Block *currentBlock, Direction direction, bool isInverse, float size) {
     this->color = A_BLUE;
+    this->size = size;
 
     if (!this->texture.loadFromFile("images/ant" + to_string(this->color) + ".png")) {
         std::cout << "Could not load enemy texture" << std::endl;
@@ -73,12 +74,12 @@ void Ant::move() {
         this->setCurrentBlockType(!this->isInverse ? BLACK : WHITE);
         this->direction = (Direction) ((this->direction + 1) % 4);
         this->move(this->direction);
-        this->goTo(this->x * 70.f, this->y * 70.f);
+        this->goTo(this->x * this->size, this->y * this->size);
     } else {
         this->setCurrentBlockType(this->isInverse ? BLACK : WHITE);
         this->direction = static_cast<Direction>((this->direction - 1 + 4) % 4);
         this->move(this->direction);
-        this->goTo(this->x * 70.f, this->y * 70.f);
+        this->goTo(this->x * this->size, this->y * this->size);
 
     }
 //    switch (this->currentBlock->getBlockType()) {
