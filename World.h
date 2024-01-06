@@ -65,6 +65,8 @@ public:
 
     float getSizeOfBlock() const;
 
+    void changeAntBehaviour();
+
 };
 
 
