@@ -18,11 +18,12 @@ private:
     int logicOfAnts = 0;
     bool paused = false;
     void collisionDetection();
+    int sizeOfBlock = 0;
 
 public:
-    World(int width, int height, int numberOfAnts, bool random);
+    World(int width, int height, int numberOfAnts, bool random, float size);
 
-    World(std::string fileName, int numberOfAnts);
+    World(std::string fileName, int numberOfAnts, float size);
 
     void move();
 
@@ -55,6 +56,8 @@ public:
     bool isPaused() const;
 
     void setPaused(bool paused);
+
+    void setSizeOfBlock(float size);
 
 };
 
