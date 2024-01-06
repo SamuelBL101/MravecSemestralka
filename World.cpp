@@ -253,5 +253,11 @@ void World::setBlockSize(int size) {
     this->sizeOfBlock = size;
 }
 
+void World::changeAntBehaviour() {
+    for (auto &ant: this->ants) {
+        ant.changeBehavior();
+    }
+}
+
 
 

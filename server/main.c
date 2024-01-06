@@ -179,6 +179,8 @@ void* consume(void* thread_data) {
 
 //! moje funkcie
 void saveFile(const char* str) {
+    printf("Saving file...\n");
+    printf("%s", str);
     char temp[1024];
     strcpy(temp, str);
 
