@@ -130,7 +130,7 @@ void uploadMap(std::string &filename, short port) {
 
 int main() {
 //    const char *str = "suborrr.txt;3 3;0 1 0;1 1 1;0 0 0;";
-//    std::string filename = "subor12345.txt";
+//    std::string filename = "mapz.txt";
 //    downloadMap(filename, 18888);
 
 //    std::string filename2 = "mapz.txt";
