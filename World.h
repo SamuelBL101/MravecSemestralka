@@ -8,6 +8,11 @@
 #include "Block.h"
 #include "Ant.h"
 #include <vector>
+#include <mutex>
+#include <condition_variable>
+#include <string>
+#include <iosfwd>
+#include <sstream>
 
 class World {
 private:
@@ -17,7 +22,18 @@ private:
     std::vector<Ant> ants;
     int logicOfAnts = 0;
     bool paused = false;
+
+    std::mutex worldMutex;
+    std::condition_variable worldCv;
+
+private:
+
     void collisionDetection();
+
+    void uploadMap(std::string &mapName, short port);
+
+    std::string convertFileToString(const std::string &filename);
+
     int sizeOfBlock = 0;
 
 public:
@@ -47,7 +63,7 @@ public:
 
     void setBlockSize(int size);
 
-    void loadFromFile(std::string& fileName, int lower);
+    void loadFromFile(std::string &fileName, int lower);
 
     void saveToFile(std::string fileName);
 
@@ -66,6 +82,14 @@ public:
     float getSizeOfBlock() const;
 
     void changeAntBehaviour();
+
+    void changeBehaviourOfAnts();
+
+    void threadAntMovement();
+
+    void threadDisplay();
+
+    std::vector<Ant> getAnts();
 
 };
 

@@ -59,6 +59,7 @@ private:
     int y;
     ColoredAnt color;
     float size;
+
 public:
     Ant(Block *currentBlock, Direction direction, bool isInverse, float size);
 
@@ -87,6 +88,8 @@ public:
     void changeBehavior();
 
     void setColor(ColoredAnt color);
+
+    int getColor();
 };
 
 

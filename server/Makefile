@@ -3,7 +3,7 @@ CFLAGS = -Wall -g
 
 .PHONY: all clean
 
-server: server/main.c
+server: main.c
 	$(CC) $(CFLAGS) -o server main.c
 
 all: server
