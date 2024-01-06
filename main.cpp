@@ -10,19 +10,33 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 std::mutex windowMutex;
 std::condition_variable cv;
 
 void antMovement(World &world) {
     sf::RenderWindow window(
-            sf::VideoMode(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height),
-            "Langton's Ant");
+            sf::VideoMode(sf::VideoMode::getDesktopMode().width, 0.85 * sf::VideoMode::getDesktopMode().height),
+            "SFML Fullscreen Windowed");
+    window.setPosition(sf::Vector2i(0, 0));
 
     while (window.isOpen() && world.getNumberOfAnts() > 0) {
 
         sf::Event event;
         while (window.pollEvent(event)) {
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    // Left mouse button is pressed
+                    if (event.mouseButton.x >= 0 && event.mouseButton.x <= world.getWidth() * world.getSizeOfBlock() &&
+                        event.mouseButton.y >= 0 &&
+                        event.mouseButton.y <= world.getHeight() * world.getSizeOfBlock()) {
+                        int blockClickedX = std::floor(event.mouseButton.x / world.getSizeOfBlock());
+                        int blockClickedY = std::floor(event.mouseButton.y / world.getSizeOfBlock());
+                        world.changeBlockType(blockClickedX, blockClickedY);
+                    }
+                }
+            }
             if (event.type == sf::Event::TextEntered) {
                 if (event.text.unicode < 128) {
                     if (event.text.unicode == 112) {
@@ -54,7 +68,6 @@ void antMovement(World &world) {
 
 void moving(World &world) {
     while (world.getNumberOfAnts() > 0) {
-        //if(!world.isPaused()){
         std::unique_lock<std::mutex> globalLock(windowMutex);
         while (world.isPaused()) {
             cv.wait(globalLock);
@@ -62,8 +75,7 @@ void moving(World &world) {
         world.move();
         globalLock.unlock();
         cv.notify_one();
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        // }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
@@ -166,7 +178,6 @@ int main() {
                     colorsOfAnts.at(i)++;
                     colorsOfAnts.at(i) %= 5;
                     buttons.at(i).setText(to_string(static_cast<ColoredAnt>(colorsOfAnts.at(i))));
-                    std::cout << colorsOfAnts.at(i) << std::endl;
                 }
             }
             if (event.type == sf::Event::Closed) {
@@ -225,6 +236,21 @@ int main() {
             break;
         }
         window.clear(sf::Color::White);
+        if (parameters[2] != "" && parameters[3] != "") {
+            int width = std::stoi(parameters[2]);
+            int height = std::stoi(parameters[3]);
+            std::vector<std::vector<sf::RectangleShape>> rectMap(height, std::vector<sf::RectangleShape>(width));
+
+            for (int i = 0; i < height; ++i) {
+                for (int j = 0; j < width; ++j) {
+                    rectMap[i][j].setSize(sf::Vector2f(50.f, 50.f));
+                    rectMap[i][j].setPosition(50 + j * 50.f, 500 + i * 50.f);
+                    rectMap[i][j].setOutlineColor(sf::Color::Blue);
+                    rectMap[i][j].setOutlineThickness(2);
+                    window.draw(rectMap[i][j]);
+                }
+            }
+        }
         loadMapButton.draw(window);
         for (auto &button: buttons) {
             button.draw(window);
@@ -236,13 +262,11 @@ int main() {
     }
     window.close();
 
-    //std::cout << "hi";
     std::cout << parameters[1];
-    //std::cout << "hi";
-    int lower = sf::VideoMode::getDesktopMode().width < sf::VideoMode::getDesktopMode().height
+    int lower = sf::VideoMode::getDesktopMode().width < 0.85 * sf::VideoMode::getDesktopMode().height
                 ? sf::VideoMode::getDesktopMode().width
-                : sf::VideoMode::getDesktopMode().height;
-    lower *= 0.95;
+                : sf::VideoMode::getDesktopMode().height * 0.85;
+
     if (loadMapFromFile) {
         World world(parameters[1], std::stoi(parameters[0]), lower);
         world.setAntsLogic(logics);
@@ -258,7 +282,10 @@ int main() {
         width = std::stoi(parameters[2]);
         int height = 20;
         height = std::stoi(parameters[3]);
-        float size = lower / (width > height ? width : height);
+        float size =
+                sf::VideoMode::getDesktopMode().width / width < 0.85 * sf::VideoMode::getDesktopMode().height / height
+                ? sf::VideoMode::getDesktopMode().width / width
+                : sf::VideoMode::getDesktopMode().height * 0.85 / height;
         int numberOfAnts = 3;
         numberOfAnts = std::stoi(parameters[0]);
         World world(width, height, numberOfAnts, typeOfMap, size);

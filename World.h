@@ -43,7 +43,9 @@ public:
 
     int getNumberOfAnts();
 
-    void setBlockType(int x, int y, BlockType blockType);
+    void changeBlockType(int x, int y);
+
+    void setBlockSize(int size);
 
     void loadFromFile(std::string& fileName, int lower);
 
@@ -60,6 +62,8 @@ public:
     void setSizeOfBlock(float size);
 
     sf::VertexArray getVertexArray(float size);
+
+    float getSizeOfBlock() const;
 
 };
 
