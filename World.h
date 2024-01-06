@@ -19,7 +19,7 @@ private:
     std::vector<std::vector<Block>> map;
     int width;
     int height;
-    std::vector<Ant> ants;
+    std::vector<Ant*> ants;
     int logicOfAnts = 0;
     bool paused = false;
 
@@ -89,7 +89,9 @@ public:
 
     void threadDisplay();
 
-    std::vector<Ant> getAnts();
+    std::vector<Ant*> getAnts();
+
+    ~World();
 
 };
 
