@@ -76,8 +76,8 @@ std::vector<std::vector<sf::RectangleShape>> World::getRectMap(float size) {
     return rectMap;
 }
 
-void World::setBlockType(int x, int y, BlockType blockType) {
-    this->map[y][x].setBlockType(blockType);
+void World::changeBlockType(int x, int y) {
+    this->map[y][x].setBlockType(this->map[y][x].getBlockType() == BLACK ? WHITE : BLACK);
 }
 
 void World::drawMap(sf::RenderWindow *window) {
@@ -243,6 +243,14 @@ sf::VertexArray World::getVertexArray(float size) {
     }
 
     return vertexArray;
+}
+
+float World::getSizeOfBlock() const {
+    return this->sizeOfBlock;
+}
+
+void World::setBlockSize(int size) {
+    this->sizeOfBlock = size;
 }
 
 
