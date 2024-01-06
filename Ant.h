@@ -50,7 +50,7 @@ inline std::string to_string(ColoredAnt coloredAnt) {
 
 class Ant {
 private:
-    Block *currentBlock;
+    Block* currentBlock;
     Direction direction;
     sf::Sprite sprite;
     sf::Texture texture;
@@ -58,8 +58,9 @@ private:
     int x;
     int y;
     ColoredAnt color;
+    float size;
 public:
-    Ant(Block *currentBlock, Direction direction, bool isInverse);
+    Ant(Block *currentBlock, Direction direction, bool isInverse, float size);
 
     int getX();
 

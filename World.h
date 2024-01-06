@@ -18,11 +18,12 @@ private:
     int logicOfAnts = 0;
     bool paused = false;
     void collisionDetection();
+    int sizeOfBlock = 0;
 
 public:
-    World(int width, int height, int numberOfAnts, bool random);
+    World(int width, int height, int numberOfAnts, bool random, float size);
 
-    World(std::string fileName, int numberOfAnts);
+    World(std::string fileName, int numberOfAnts, float size);
 
     void move();
 
@@ -42,9 +43,11 @@ public:
 
     int getNumberOfAnts();
 
-    void setBlockType(int x, int y, BlockType blockType);
+    void changeBlockType(int x, int y);
 
-    void loadFromFile(std::string& fileName);
+    void setBlockSize(int size);
+
+    void loadFromFile(std::string& fileName, int lower);
 
     void saveToFile(std::string fileName);
 
@@ -55,6 +58,12 @@ public:
     bool isPaused() const;
 
     void setPaused(bool paused);
+
+    void setSizeOfBlock(float size);
+
+    sf::VertexArray getVertexArray(float size);
+
+    float getSizeOfBlock() const;
 
 };
 

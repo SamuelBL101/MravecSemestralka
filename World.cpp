@@ -10,9 +10,10 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "World.h"
 
-World::World(int width, int height, int numberOfAnts, bool random) {
+World::World(int width, int height, int numberOfAnts, bool random, float size) {
     this->width = width;
     this->height = height;
+    this->sizeOfBlock = size;
 
     this->ants = std::vector<Ant>();
     if (random) {
@@ -31,12 +32,13 @@ World::World(int width, int height, int numberOfAnts, bool random) {
         }
     }
 
-    float scale = static_cast<float>(map[0][0].getWidth()) / 960;
+    float scale = static_cast<float>(size) / 960;
+    //Ant a = Ant(this->getBlock(width / 2, height/2), UP, true, this->sizeOfBlock);
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant a = Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true);
+        Ant a = Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
         a.setColor(A_BLUE);
         a.scale(scale, scale);
-        a.goTo(a.getX() * map[0][0].getWidth(), a.getY() * map[0][0].getHeight());
+        a.goTo(a.getX() * size, a.getY() * size);
         ants.push_back(a);
     }
 }
@@ -74,18 +76,13 @@ std::vector<std::vector<sf::RectangleShape>> World::getRectMap(float size) {
     return rectMap;
 }
 
-void World::setBlockType(int x, int y, BlockType blockType) {
-    this->map[y][x].setBlockType(blockType);
+void World::changeBlockType(int x, int y) {
+    this->map[y][x].setBlockType(this->map[y][x].getBlockType() == BLACK ? WHITE : BLACK);
 }
 
 void World::drawMap(sf::RenderWindow *window) {
-    //sf::RectangleShape **rectMap = this->getRectMap(70.f);
-    std::vector<std::vector<sf::RectangleShape>> rectMap = this->getRectMap(70.f);
-    for (int i = 0; i < this->getHeight(); ++i) {
-        for (int j = 0; j < this->getWidth(); ++j) {
-            window->draw(rectMap[i][j]);
-        }
-    }
+    sf::VertexArray vertexArray = this->getVertexArray(this->sizeOfBlock);
+    window->draw(vertexArray);
 
     this->collisionDetection();
 
@@ -97,7 +94,6 @@ void World::drawMap(sf::RenderWindow *window) {
             ants.erase(ants.begin() + i);
         }
     }
-
 }
 
 void World::addAnt(Ant ant) {
@@ -138,7 +134,7 @@ void World::saveToFile(std::string fileName) {
 
 }
 
-void World::loadFromFile(std::string &fileName) {
+void World::loadFromFile(std::string &fileName, int lower) {
     std::ifstream file;
     file.open(fileName);
     if (!file.is_open()) {
@@ -148,6 +144,7 @@ void World::loadFromFile(std::string &fileName) {
         std::cout << "File opened successfully" << std::endl;
     }
     file >> this->width >> this->height;
+    this->sizeOfBlock = lower / (width > height ? width : height);
 
     this->map = std::vector<std::vector<Block>>(height, std::vector<Block>(width));
 
@@ -167,14 +164,15 @@ int World::getNumberOfAnts() {
     return this->ants.size();
 }
 
-World::World(std::string fileName, int numberOfAnts) {
-    this->loadFromFile(fileName);
-    float scale = static_cast<float>(70.f) / 960;
+World::World(std::string fileName, int numberOfAnts, float size) {
+    this->sizeOfBlock = size;
+    this->loadFromFile(fileName, size);
+    float scale = static_cast<float>(this->sizeOfBlock) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant a = Ant(this->getBlock(rand() % 10, rand() % 10), UP, true);
+        Ant a = Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
         a.setColor(A_BLACK);
         a.scale(scale, scale);
-        a.goTo(a.getX() * 70.f, a.getY() * 70.f);
+        a.goTo(a.getX() * this->sizeOfBlock, a.getY() * this->sizeOfBlock);
         ants.push_back(a);
     }
 }
@@ -216,6 +214,43 @@ bool World::isPaused() const {
 
 void World::setPaused(bool paused) {
     World::paused = paused;
+}
+
+void World::setSizeOfBlock(float size) {
+    this->sizeOfBlock = size;
+}
+
+sf::VertexArray World::getVertexArray(float size) {
+    sf::VertexArray vertexArray(sf::Quads, 4 * height * width);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            // Calculate the position of the current quad
+            float x = j * size;
+            float y = i * size;
+
+            // Set the vertices of the quad
+            vertexArray[4 * (i * width + j)].position = sf::Vector2f(x, y);
+            vertexArray[4 * (i * width + j) + 1].position = sf::Vector2f(x + size, y);
+            vertexArray[4 * (i * width + j) + 2].position = sf::Vector2f(x + size, y + size);
+            vertexArray[4 * (i * width + j) + 3].position = sf::Vector2f(x, y + size);
+
+            // Set the color based on the block type
+            sf::Color fillColor = (map[i][j].getBlockType() == BLACK) ? sf::Color::Black : sf::Color::White;
+            for (int k = 0; k < 4; ++k) {
+                vertexArray[4 * (i * width + j) + k].color = fillColor;
+            }
+        }
+    }
+
+    return vertexArray;
+}
+
+float World::getSizeOfBlock() const {
+    return this->sizeOfBlock;
+}
+
+void World::setBlockSize(int size) {
+    this->sizeOfBlock = size;
 }
 
 
