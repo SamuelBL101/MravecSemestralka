@@ -33,6 +33,7 @@ World::World(int width, int height, int numberOfAnts, bool random, float size) {
     }
 
     float scale = static_cast<float>(size) / 960;
+    //Ant a = Ant(this->getBlock(width / 2, height/2), UP, true, this->sizeOfBlock);
     for (int i = 0; i < numberOfAnts; ++i) {
         Ant a = Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
         a.setColor(A_BLUE);
@@ -80,13 +81,8 @@ void World::setBlockType(int x, int y, BlockType blockType) {
 }
 
 void World::drawMap(sf::RenderWindow *window) {
-    //sf::RectangleShape **rectMap = this->getRectMap();
-    std::vector<std::vector<sf::RectangleShape>> rectMap = this->getRectMap(this->sizeOfBlock);
-    for (int i = 0; i < this->getHeight(); ++i) {
-        for (int j = 0; j < this->getWidth(); ++j) {
-            window->draw(rectMap[i][j]);
-        }
-    }
+    sf::VertexArray vertexArray = this->getVertexArray(this->sizeOfBlock);
+    window->draw(vertexArray);
 
     this->collisionDetection();
 
@@ -98,7 +94,6 @@ void World::drawMap(sf::RenderWindow *window) {
             ants.erase(ants.begin() + i);
         }
     }
-
 }
 
 void World::addAnt(Ant ant) {
@@ -139,7 +134,7 @@ void World::saveToFile(std::string fileName) {
 
 }
 
-void World::loadFromFile(std::string &fileName) {
+void World::loadFromFile(std::string &fileName, int lower) {
     std::ifstream file;
     file.open(fileName);
     if (!file.is_open()) {
@@ -149,6 +144,7 @@ void World::loadFromFile(std::string &fileName) {
         std::cout << "File opened successfully" << std::endl;
     }
     file >> this->width >> this->height;
+    this->sizeOfBlock = lower / (width > height ? width : height);
 
     this->map = std::vector<std::vector<Block>>(height, std::vector<Block>(width));
 
@@ -170,7 +166,7 @@ int World::getNumberOfAnts() {
 
 World::World(std::string fileName, int numberOfAnts, float size) {
     this->sizeOfBlock = size;
-    this->loadFromFile(fileName);
+    this->loadFromFile(fileName, size);
     float scale = static_cast<float>(this->sizeOfBlock) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
         Ant a = Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
@@ -222,6 +218,31 @@ void World::setPaused(bool paused) {
 
 void World::setSizeOfBlock(float size) {
     this->sizeOfBlock = size;
+}
+
+sf::VertexArray World::getVertexArray(float size) {
+    sf::VertexArray vertexArray(sf::Quads, 4 * height * width);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            // Calculate the position of the current quad
+            float x = j * size;
+            float y = i * size;
+
+            // Set the vertices of the quad
+            vertexArray[4 * (i * width + j)].position = sf::Vector2f(x, y);
+            vertexArray[4 * (i * width + j) + 1].position = sf::Vector2f(x + size, y);
+            vertexArray[4 * (i * width + j) + 2].position = sf::Vector2f(x + size, y + size);
+            vertexArray[4 * (i * width + j) + 3].position = sf::Vector2f(x, y + size);
+
+            // Set the color based on the block type
+            sf::Color fillColor = (map[i][j].getBlockType() == BLACK) ? sf::Color::Black : sf::Color::White;
+            for (int k = 0; k < 4; ++k) {
+                vertexArray[4 * (i * width + j) + k].color = fillColor;
+            }
+        }
+    }
+
+    return vertexArray;
 }
 
 
