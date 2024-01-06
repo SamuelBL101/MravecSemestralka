@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include "World.h"
 #include "my_socket.h"
 #include <Windows.h>
@@ -9,7 +10,24 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
+std::mutex windowMutex;
+std::condition_variable cv;
+
+std::string convertFileToString(const std::string &filename) {
+    std::ifstream file(filename);
+    std::stringstream buffer;
+    std::string line;
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            buffer << line << ";";
+        }
+        file.close();
+    }
+    return buffer.str();
+}
 
 void convertStringToFile(const char *str) {
     std::istringstream iss(str);
@@ -38,14 +56,88 @@ void downloadMap(std::string &mapName, short port) {
     convertStringToFile(response.c_str());
 }
 
-
-void threadDisplay(World &world) {
-    world.threadDisplay();
+void uploadMap(World& world, std::string &filename, short port) {
+    world.saveToFile(filename);
+    MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", port);
+    std::string message = filename + ";" + convertFileToString(filename);
+    mySocket->sendData(message);
+    delete mySocket;
+    mySocket = nullptr;
 }
 
-void threadMoving(World &world) {
-    world.threadAntMovement();
+void antMovement(World &world) {
+    sf::RenderWindow window(
+            sf::VideoMode(sf::VideoMode::getDesktopMode().width, 0.9 * sf::VideoMode::getDesktopMode().height),
+            "SFML Fullscreen Windowed");
+    window.setPosition(sf::Vector2i(0, 0));
+    Button uploadMapButton(20, sf::VideoMode::getDesktopMode().height * 0.85, 100, 50, "Upload Map");
+
+    while (window.isOpen() && world.getNumberOfAnts() > 0) {
+
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (uploadMapButton.handleEvent(event)){
+                std::string filename = "mapz.txt";
+                uploadMap(world, filename, 18888);
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    if (event.mouseButton.x >= 0 && event.mouseButton.x <= world.getWidth() * world.getSizeOfBlock() &&
+                        event.mouseButton.y >= 0 &&
+                        event.mouseButton.y <= world.getHeight() * world.getSizeOfBlock()) {
+                        int blockClickedX = std::floor(event.mouseButton.x / world.getSizeOfBlock());
+                        int blockClickedY = std::floor(event.mouseButton.y / world.getSizeOfBlock());
+                        world.changeBlockType(blockClickedX, blockClickedY);
+                    }
+                }
+            }
+            if (event.type == sf::Event::TextEntered) {
+                if (event.text.unicode < 128) {
+                    if (event.text.unicode == 112) {
+                        world.setPaused(!world.isPaused());
+                        cv.notify_one();
+                    }
+                    if (event.text.unicode == 105) {
+                        world.changeAntBehaviour();
+                    }
+
+                }
+            }
+
+            if (event.type == sf::Event::Closed) {
+                window.close();
+                cv.notify_one();
+                if (world.getNumberOfAnts() <= 0)
+                    break;
+                else {
+                    world.saveToFile("mapz.txt");
+                    std::exit(0);
+                }
+            }
+        }
+        {
+            std::unique_lock<std::mutex> locker(windowMutex);
+            window.clear();
+            world.drawMap(&window);
+            uploadMapButton.draw(window);
+            window.display();
+        }
+    }
 }
+
+void moving(World &world) {
+    while (world.getNumberOfAnts() > 0) {
+        std::unique_lock<std::mutex> globalLock(windowMutex);
+        while (world.isPaused()) {
+            cv.wait(globalLock);
+        }
+        world.move();
+        globalLock.unlock();
+        cv.notify_one();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    }
+}
+
 
 
 int main() {
@@ -127,11 +219,11 @@ int main() {
                     default:
                         break;
                 }
-            } else if (downloadMapButton.handleEvent(event)) {
+            } else if(downloadMapButton.handleEvent(event)){
                 //!stiahnutie mapy
                 std::string filename = "mapz.txt";
                 downloadMap(filename, 18888);
-            } else if (event.type == sf::Event::TextEntered) {
+            }else if (event.type == sf::Event::TextEntered) {
                 if (event.text.unicode < 128) {
                     char enteredChar = static_cast<char>(event.text.unicode);
                     if (enteredChar == 13) {
@@ -195,10 +287,8 @@ int main() {
     if (loadMapFromFile) {
         World world(parameters[1], std::stoi(parameters[0]), lower);
         world.setAntsLogic(logics);
-
-        std::thread tm1(threadDisplay, std::ref(world));
-        std::thread tm2(threadMoving, std::ref(world));
-
+        std::thread tm1(antMovement, std::ref(world));
+        std::thread tm2(moving, std::ref(world));
 
         tm1.join();
         tm2.join();
@@ -221,8 +311,8 @@ int main() {
             world.setAntColor(static_cast<ColoredAnt>(colorsOfAnts.at(i)), i);
         }
 
-        std::thread tm1(threadDisplay, std::ref(world));
-        std::thread tm2(threadMoving, std::ref(world));
+        std::thread tm1(antMovement, std::ref(world));
+        std::thread tm2(moving, std::ref(world));
 
         tm1.join();
         tm2.join();
