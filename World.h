@@ -45,7 +45,7 @@ public:
 
     void setBlockType(int x, int y, BlockType blockType);
 
-    void loadFromFile(std::string& fileName);
+    void loadFromFile(std::string& fileName, int lower);
 
     void saveToFile(std::string fileName);
 
@@ -58,6 +58,8 @@ public:
     void setPaused(bool paused);
 
     void setSizeOfBlock(float size);
+
+    sf::VertexArray getVertexArray(float size);
 
 };
 

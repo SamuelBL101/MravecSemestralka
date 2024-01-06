@@ -62,7 +62,7 @@ void moving(World &world) {
         world.move();
         globalLock.unlock();
         cv.notify_one();
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         // }
     }
 }
@@ -242,9 +242,9 @@ int main() {
     int lower = sf::VideoMode::getDesktopMode().width < sf::VideoMode::getDesktopMode().height
                 ? sf::VideoMode::getDesktopMode().width
                 : sf::VideoMode::getDesktopMode().height;
-    lower -= 100;
+    lower *= 0.95;
     if (loadMapFromFile) {
-        World world(parameters[1], std::stoi(parameters[0]), 30.f);
+        World world(parameters[1], std::stoi(parameters[0]), lower);
         world.setAntsLogic(logics);
         std::thread tm1(antMovement, std::ref(world));
         std::thread tm2(moving, std::ref(world));
@@ -261,7 +261,7 @@ int main() {
         float size = lower / (width > height ? width : height);
         int numberOfAnts = 3;
         numberOfAnts = std::stoi(parameters[0]);
-        World world(width, height, numberOfAnts, typeOfMap, 30.f);
+        World world(width, height, numberOfAnts, typeOfMap, size);
         world.setAntsLogic(logics);
         for (int i = 0; i < numberOfAnts; ++i) {
             world.setAntColor(static_cast<ColoredAnt>(colorsOfAnts.at(i)), i);
