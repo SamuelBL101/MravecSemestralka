@@ -13,13 +13,14 @@
 #include <string>
 #include <iosfwd>
 #include <sstream>
+#include <memory>
 
 class World {
 private:
     std::vector<std::vector<Block>> map;
     int width;
     int height;
-    std::vector<Ant*> ants;
+    std::vector<std::unique_ptr<Ant>> ants;
     int logicOfAnts = 0;
     bool paused = false;
 
@@ -55,8 +56,6 @@ public:
 
     void drawMap(sf::RenderWindow *window);
 
-    void addAnt(Ant ant);
-
     int getNumberOfAnts();
 
     void changeBlockType(int x, int y);
@@ -88,8 +87,6 @@ public:
     void threadAntMovement();
 
     void threadDisplay();
-
-    std::vector<Ant*> getAnts();
 
     ~World();
 

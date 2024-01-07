@@ -20,7 +20,7 @@ World::World(int width, int height, int numberOfAnts, bool random, float size) {
     this->height = height;
     this->sizeOfBlock = size;
 
-    this->ants = std::vector<Ant *>();
+    this->ants = std::vector<std::unique_ptr<Ant>>();
     if (random) {
         std::srand(static_cast<unsigned>(std::time(nullptr)));
     }
@@ -40,11 +40,13 @@ World::World(int width, int height, int numberOfAnts, bool random, float size) {
     float scale = static_cast<float>(size) / 960;
     //Ant a = Ant(this->getBlock(width / 2, height/2), UP, true, this->sizeOfBlock);
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant *a = new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
+        //Ant *a = new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
+        std::unique_ptr<Ant> a(new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true,
+                                       this->sizeOfBlock));
         a->setColor(A_BLUE);
         a->scale(scale, scale);
         a->goTo(a->getX() * size, a->getY() * size);
-        ants.push_back(a);
+        ants.push_back(std::move(a));
     }
 }
 
@@ -97,7 +99,7 @@ void World::drawMap(sf::RenderWindow *window) {
             ants.at(i)->getY() >= this->height) {
             std::cout << "out of bounds" << i << std::endl;
             std::swap(ants.at(i), ants.at(ants.size() - 1));
-            delete ants.back();
+            //delete ants.back();
             ants.back() = nullptr;
             ants.pop_back();
         }
@@ -107,10 +109,6 @@ void World::drawMap(sf::RenderWindow *window) {
         window->draw(this->ants.at(i)->getSprite());
     }
 
-}
-
-void World::addAnt(Ant ant) {
-    this->ants.push_back(&ant);
 }
 
 void World::move() {
@@ -160,7 +158,7 @@ void World::loadFromFile(std::string &fileName, int lower) {
 
     this->map = std::vector<std::vector<Block>>(height, std::vector<Block>(width));
 
-    this->ants = std::vector<Ant *>();
+    this->ants = std::vector<std::unique_ptr<Ant>>();
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; j++) {
             int blockType;
@@ -181,11 +179,13 @@ World::World(std::string fileName, int numberOfAnts, float size) {
     this->loadFromFile(fileName, size);
     float scale = static_cast<float>(this->sizeOfBlock) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant *a = new Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
+        //Ant *a = new Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
+        std::unique_ptr<Ant> a(new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true,
+                                       this->sizeOfBlock));
         a->setColor(A_BLACK);
         a->scale(scale, scale);
         a->goTo(a->getX() * this->sizeOfBlock, a->getY() * this->sizeOfBlock);
-        ants.push_back(a);
+        ants.push_back(std::move(a));
     }
 }
 
@@ -206,14 +206,14 @@ void World::collisionDetection() {
                 std::cout << this->ants.size() << " collision ";
                 switch (logicOfAnts) {
                     case 0:
-                        delete ants.at(i);
+                        //delete ants.at(i);
                         ants.at(i) = nullptr;
                         ants.erase(ants.begin() + i);
                         break;
                     case 1:
-                        delete ants.at(i);
+                        //delete ants.at(i);
                         ants.at(i) = nullptr;
-                        delete ants.at(j);
+                        //delete ants.at(j);
                         ants.at(j) = nullptr;
 
                         std::swap(ants.at(i), ants.at(ants.size() - 1));
@@ -390,13 +390,9 @@ std::string World::convertFileToString(const std::string &filename) {
 
 }
 
-std::vector<Ant *> World::getAnts() {
-    return this->ants;
-}
-
 World::~World() {
     for (auto &ant: this->ants) {
-        delete ant;
+        //delete ant;
         ant = nullptr;
     }
 }
