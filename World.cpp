@@ -14,7 +14,14 @@
 #include "World.h"
 #include "Button.h"
 #include "my_socket.h"
-
+/**
+ * @brief Construct a new World:: World object
+ * @param width
+ * @param height
+ * @param numberOfAnts
+ * @param random
+ * @param size
+ */
 World::World(int width, int height, int numberOfAnts, bool random, float size) {
     this->width = width;
     this->height = height;
@@ -50,23 +57,43 @@ World::World(int width, int height, int numberOfAnts, bool random, float size) {
     }
 }
 
-
+/**
+ * @brief Get the Block object
+ * @param x
+ * @param y
+ * @return
+ */
 Block *World::getBlock(int x, int y) {
     return &map[y][x];
 }
-
+/**
+ *  @brief Set the Block object
+ * @param x
+ * @param y
+ * @param blockType
+ */
 void World::setBlock(int x, int y, BlockType blockType) {
     this->map[y][x].setBlockType(blockType);
 }
-
+/**
+ * @brief Get the Width object
+ * @return
+ */
 int World::getWidth() const {
     return this->width;
 }
-
+/**
+ *  @brief Get the Height object
+ * @return
+ */
 int World::getHeight() const {
     return this->height;
 }
-
+/**
+ * @brief Get the Rect Map object
+ * @param size
+ * @return
+ */
 std::vector<std::vector<sf::RectangleShape>> World::getRectMap(float size) {
     std::vector<std::vector<sf::RectangleShape>> rectMap(height, std::vector<sf::RectangleShape>(width));
 
@@ -82,11 +109,18 @@ std::vector<std::vector<sf::RectangleShape>> World::getRectMap(float size) {
 
     return rectMap;
 }
-
+/**
+ * @brief Change the Block Type object
+ * @param x
+ * @param y
+ */
 void World::changeBlockType(int x, int y) {
     this->map[y][x].setBlockType(this->map[y][x].getBlockType() == BLACK ? WHITE : BLACK);
 }
-
+/**
+ * @brief Draw the Map object
+ * @param window
+ */
 void World::drawMap(sf::RenderWindow *window) {
     sf::VertexArray vertexArray = this->getVertexArray(this->sizeOfBlock);
     window->draw(vertexArray);
@@ -110,7 +144,9 @@ void World::drawMap(sf::RenderWindow *window) {
     }
 
 }
-
+/**
+ * @brief Move the Ants object
+ */
 void World::move() {
     for (auto &ant: ants) {
         ant->move();
@@ -118,7 +154,10 @@ void World::move() {
     }
 
 }
-
+/**
+ * @brief Save to File object
+ * @param fileName
+ */
 void World::saveToFile(std::string fileName) {
     std::ofstream file;
     file.open(fileName);
@@ -143,7 +182,11 @@ void World::saveToFile(std::string fileName) {
     file.close();
 
 }
-
+/**
+ * @brief Load from File object
+ * @param fileName
+ * @param lower
+ */
 void World::loadFromFile(std::string &fileName, int lower) {
     std::ifstream file;
     file.open(fileName);
@@ -169,11 +212,19 @@ void World::loadFromFile(std::string &fileName, int lower) {
     }
     file.close();
 }
-
+/**
+ * @brief Get the Number Of Ants object
+ * @return
+ */
 int World::getNumberOfAnts() {
     return this->ants.size();
 }
-
+/**
+ * @brief Construct a new World:: World object
+ * @param fileName
+ * @param numberOfAnts
+ * @param size
+ */
 World::World(std::string fileName, int numberOfAnts, float size) {
     this->sizeOfBlock = size;
     this->loadFromFile(fileName, size);
@@ -188,15 +239,25 @@ World::World(std::string fileName, int numberOfAnts, float size) {
         ants.push_back(std::move(a));
     }
 }
-
+/**
+ * @brief Set the Ants Logic object
+ * @param logic
+ */
 void World::setAntsLogic(int logic) {
     this->logicOfAnts = logic;
 }
-
+/**
+ * @brief Set the Ant Color object
+ * @param color
+ * @param antIndex
+ */
 void World::setAntColor(ColoredAnt color, int antIndex) {
     this->ants.at(antIndex)->setColor(color);
 }
 
+/**
+ * @brief Collision Detection object
+ */
 void World::collisionDetection() {
     for (int i = 0; i < this->ants.size(); ++i) {
         for (int j = i + 1; j < this->ants.size(); ++j) {
@@ -232,18 +293,32 @@ void World::collisionDetection() {
     }
 }
 
+/**
+ * @brief Get the Ants object
+ * @return
+ */
 bool World::isPaused() const {
     return paused;
 }
-
+/**
+ * @brief Set the Paused object
+ * @param paused
+ */
 void World::setPaused(bool paused) {
     World::paused = paused;
 }
-
+/**
+ * @brief Set the Size Of Block object
+ * @param size
+ */
 void World::setSizeOfBlock(float size) {
     this->sizeOfBlock = size;
 }
-
+/**
+ * @brief Get the Vertex Array object
+ * @param size
+ * @return
+ */
 sf::VertexArray World::getVertexArray(float size) {
     sf::VertexArray vertexArray(sf::Quads, 4 * height * width);
     for (int i = 0; i < height; ++i) {
@@ -268,27 +343,40 @@ sf::VertexArray World::getVertexArray(float size) {
 
     return vertexArray;
 }
-
+/**
+ * @brief Get the Size Of Block object
+ * @return
+ */
 float World::getSizeOfBlock() const {
     return this->sizeOfBlock;
 }
-
+/**
+ * @brief Set the Block Size object
+ * @param size
+ */
 void World::setBlockSize(int size) {
     this->sizeOfBlock = size;
 }
-
+/**
+ * @brief Change the Behaviour of Ants object
+ */
 void World::changeAntBehaviour() {
     for (auto &ant: this->ants) {
         ant->changeBehavior();
     }
 }
-
+/**
+ * @brief Change the Behaviour Of Ants object
+ */
 void World::changeBehaviourOfAnts() {
     for (auto &ant: this->ants) {
         ant->changeBehavior();
     }
 }
-
+/**
+ * @brief Thread Moving object
+ * @param world
+ */
 void World::threadAntMovement() {
     while (this->getNumberOfAnts() > 0) {
         {
@@ -303,7 +391,10 @@ void World::threadAntMovement() {
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
 }
-
+/**
+ * @brief Thread Display object
+ * @param world
+ */
 void World::threadDisplay() {
     sf::RenderWindow window(
             sf::VideoMode(sf::VideoMode::getDesktopMode().width, 0.9 * sf::VideoMode::getDesktopMode().height),
@@ -370,6 +461,11 @@ void World::threadDisplay() {
     window.close();
 }
 
+/**
+ * @brief Upload Map object
+ * @param mapName
+ * @param port
+ */
 void World::uploadMap(std::string &mapName, short port) {
 
     this->saveToFile(mapName);
@@ -380,7 +476,11 @@ void World::uploadMap(std::string &mapName, short port) {
     mySocket = nullptr;
 
 }
-
+/**
+ * @brief Convert File To String object
+ * @param filename
+ * @return
+ */
 std::string World::convertFileToString(const std::string &filename) {
     std::ifstream file(filename);
     std::stringstream buffer;
@@ -395,7 +495,9 @@ std::string World::convertFileToString(const std::string &filename) {
     return buffer.str();
 
 }
-
+/**
+ * @brief Destroy the World:: World object
+ */
 World::~World() {
     for (auto &ant: this->ants) {
         //delete ant;
