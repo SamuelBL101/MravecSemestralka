@@ -291,13 +291,15 @@ void World::changeBehaviourOfAnts() {
 
 void World::threadAntMovement() {
     while (this->getNumberOfAnts() > 0) {
-        std::unique_lock<std::mutex> globalLock(this->worldMutex);
-        while (this->isPaused()) {
-            this->worldCv.wait(globalLock);
+        {
+            std::unique_lock<std::mutex> globalLock(this->worldMutex);
+            while (this->isPaused()) {
+                this->worldCv.wait(globalLock);
+            }
+            this->move();
+            //globalLock.unlock();
+            this->worldCv.notify_one();
         }
-        this->move();
-        globalLock.unlock();
-        this->worldCv.notify_one();
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
 }
@@ -308,8 +310,9 @@ void World::threadDisplay() {
             "SFML Fullscreen Windowed");
     window.setPosition(sf::Vector2i(0, 0));
     Button uploadMapButton(20, sf::VideoMode::getDesktopMode().height * 0.85, 100, 50, "Upload Map");
+    bool escapePressed = false;
 
-    while (window.isOpen() && this->getNumberOfAnts() > 0) {
+    while (window.isOpen() && this->getNumberOfAnts() > 0 || !escapePressed) {
 
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -333,9 +336,12 @@ void World::threadDisplay() {
                     if (event.text.unicode == 112) {
                         this->setPaused(!this->isPaused());
                         this->worldCv.notify_one();
-                    }
-                    if (event.text.unicode == 105) {
+                    } else if (event.text.unicode == 105) {
                         this->changeAntBehaviour();
+                    } else if (event.text.unicode == 27) {
+                        escapePressed = true;
+                        //this->worldCv.notify_one();
+                        break;
                     }
 
                 }
@@ -353,7 +359,6 @@ void World::threadDisplay() {
             }
         }
         {
-
             std::unique_lock<std::mutex> locker(this->worldMutex);
             window.clear();
             this->drawMap(&window);
@@ -362,6 +367,7 @@ void World::threadDisplay() {
         }
 
     }
+    window.close();
 }
 
 void World::uploadMap(std::string &mapName, short port) {
