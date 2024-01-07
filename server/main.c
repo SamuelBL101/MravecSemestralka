@@ -181,7 +181,7 @@ void *consume(void *thread_data) {
 void saveFile(const char *str) {
     printf("Saving file...\n");
     printf("%s", str);
-    char temp[1024 * 2];
+    char temp[1024 * 5];
     strcpy(temp, str);
 
     char *filename = strtok(temp, ";");
