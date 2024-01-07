@@ -11,7 +11,12 @@
 #define SOCKET_TERMINATE_CHAR '\0'
 
 const char *MySocket::endMessage = ":end";
-
+/**
+ * Creates connection to server.
+ * @param hostName
+ * @param port
+ * @return
+ */
 MySocket *MySocket::createConnection(std::string hostName, short port) {
     WSADATA wsaData;
     struct addrinfo *result = NULL;
@@ -60,12 +65,17 @@ MySocket *MySocket::createConnection(std::string hostName, short port) {
 
     return new MySocket(connectSocket);
 }
-
+/**
+ * Constructor.
+ * @param socket
+ */
 MySocket::MySocket(SOCKET socket) :
         connectSocket(socket) {
 
 }
-
+/**
+ * Destructor.
+ */
 MySocket::~MySocket() {
     if (this->connectSocket != INVALID_SOCKET) {
         closesocket(this->connectSocket);
@@ -73,7 +83,10 @@ MySocket::~MySocket() {
     }
     WSACleanup();
 }
-
+/**
+ * Sends data to server.
+ * @param data
+ */
 void MySocket::sendData(const std::string &data) {
     size_t data_length = data.length();
     char *buffer = (char *) calloc(data_length + 1, sizeof(char));
@@ -87,7 +100,10 @@ void MySocket::sendData(const std::string &data) {
     free(buffer);
     buffer = NULL;
 }
-
+/**
+ * Receives data from server.
+ * @return
+ */
 std::string MySocket::receiveData() const {
     char buffer[1024*2];
     ZeroMemory(buffer, sizeof(buffer));
@@ -102,7 +118,9 @@ std::string MySocket::receiveData() const {
         throw std::runtime_error("recv failed with error: " + std::to_string(WSAGetLastError()) + "\n");
     }
 }
-
+/**
+ * Sends end message to server.
+ */
 void MySocket::sendEndMessage() {
     this->sendData(this->endMessage);
 }

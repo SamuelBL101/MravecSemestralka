@@ -5,7 +5,13 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "Ant.h"
-
+/**
+ * Constructor
+ * @param currentBlock
+ * @param direction
+ * @param isInverse
+ * @param size
+ */
 Ant::Ant(Block *currentBlock, Direction direction, bool isInverse, float size) {
     this->color = A_BLUE;
     this->size = size;
@@ -22,23 +28,38 @@ Ant::Ant(Block *currentBlock, Direction direction, bool isInverse, float size) {
     this->sprite.setTexture(texture);
     this->direction = direction;
 }
-
+/**
+ * Get x
+ * @return
+ */
 int Ant::getX() {
     return this->x;
 }
-
+/**
+ * Get y
+ * @return
+ */
 int Ant::getY() {
     return this->y;
 }
-
+/**
+ * Get current block
+ * @return
+ */
 Block *Ant::getCurrentBlock() {
     return this->currentBlock;
 }
-
+/**
+ * Get direction
+ * @return
+ */
 void Ant::setCurrentBlockType(BlockType newBlock) {
     this->currentBlock->setBlockType(newBlock);
 }
-
+/**
+ * Get direction
+ * @return
+ */
 void Ant::move(Direction direction) {
     switch (direction) {
         case UP:
@@ -68,6 +89,9 @@ void Ant::move(Direction direction) {
 
 }
 
+/**
+ * Move ant
+ */
 void Ant::move() {
     if (!this->isInverse && this->currentBlock->getBlockType() == WHITE ||
         this->isInverse && this->currentBlock->getBlockType() == BLACK) {
@@ -101,36 +125,69 @@ void Ant::move() {
 //    }
 }
 
+/**
+ * Convert ant to string
+ * @return
+ */
 std::string Ant::toString() {
     return "Ant: x: " + std::to_string(this->getX()) + " y: " +
            std::to_string(this->getY()) + " direction: " +
            to_string(this->direction);
 }
 
+/**
+ * Get sprite
+ * @return
+ */
 sf::Sprite Ant::getSprite() {
     return this->sprite;
 }
 
+/**
+ * Scale ant
+ * @param scaleX
+ * @param scaleY
+ */
 void Ant::scale(float scaleX, float scaleY) {
     this->sprite.setScale(scaleX, scaleY);
 }
 
+/**
+ * Go to position
+ * @param x
+ * @param y
+ */
 void Ant::goTo(int x, int y) {
     this->sprite.setPosition(x, y);
 }
 
+/**
+ * Set current block
+ * @param newBlock
+ */
 void Ant::setCurrentBlock(Block *newBlock) {
     this->currentBlock = newBlock;
 }
 
+/**
+ * Change behavior
+ */
 void Ant::changeBehavior() {
     this->isInverse = !this->isInverse;
 }
 
+/**
+ * Set color
+ * @param color
+ */
 void Ant::setColor(ColoredAnt color) {
     this->color = color;
 }
 
+/**
+ * Get color
+ * @return
+ */
 int Ant::getColor() {
     return this->color;
 }
