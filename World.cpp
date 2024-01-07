@@ -14,13 +14,20 @@
 #include "World.h"
 #include "Button.h"
 #include "my_socket.h"
-
+/**
+ * @brief Construct a new World:: World object
+ * @param width
+ * @param height
+ * @param numberOfAnts
+ * @param random
+ * @param size
+ */
 World::World(int width, int height, int numberOfAnts, bool random, float size) {
     this->width = width;
     this->height = height;
     this->sizeOfBlock = size;
 
-    this->ants = std::vector<Ant *>();
+    this->ants = std::vector<std::unique_ptr<Ant>>();
     if (random) {
         std::srand(static_cast<unsigned>(std::time(nullptr)));
     }
@@ -40,31 +47,53 @@ World::World(int width, int height, int numberOfAnts, bool random, float size) {
     float scale = static_cast<float>(size) / 960;
     //Ant a = Ant(this->getBlock(width / 2, height/2), UP, true, this->sizeOfBlock);
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant *a = new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
+        //Ant *a = new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
+        std::unique_ptr<Ant> a(new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true,
+                                       this->sizeOfBlock));
         a->setColor(A_BLUE);
         a->scale(scale, scale);
         a->goTo(a->getX() * size, a->getY() * size);
-        ants.push_back(a);
+        ants.push_back(std::move(a));
     }
 }
 
-
+/**
+ * @brief Get the Block object
+ * @param x
+ * @param y
+ * @return
+ */
 Block *World::getBlock(int x, int y) {
     return &map[y][x];
 }
-
+/**
+ *  @brief Set the Block object
+ * @param x
+ * @param y
+ * @param blockType
+ */
 void World::setBlock(int x, int y, BlockType blockType) {
     this->map[y][x].setBlockType(blockType);
 }
-
+/**
+ * @brief Get the Width object
+ * @return
+ */
 int World::getWidth() const {
     return this->width;
 }
-
+/**
+ *  @brief Get the Height object
+ * @return
+ */
 int World::getHeight() const {
     return this->height;
 }
-
+/**
+ * @brief Get the Rect Map object
+ * @param size
+ * @return
+ */
 std::vector<std::vector<sf::RectangleShape>> World::getRectMap(float size) {
     std::vector<std::vector<sf::RectangleShape>> rectMap(height, std::vector<sf::RectangleShape>(width));
 
@@ -80,11 +109,18 @@ std::vector<std::vector<sf::RectangleShape>> World::getRectMap(float size) {
 
     return rectMap;
 }
-
+/**
+ * @brief Change the Block Type object
+ * @param x
+ * @param y
+ */
 void World::changeBlockType(int x, int y) {
     this->map[y][x].setBlockType(this->map[y][x].getBlockType() == BLACK ? WHITE : BLACK);
 }
-
+/**
+ * @brief Draw the Map object
+ * @param window
+ */
 void World::drawMap(sf::RenderWindow *window) {
     sf::VertexArray vertexArray = this->getVertexArray(this->sizeOfBlock);
     window->draw(vertexArray);
@@ -97,7 +133,7 @@ void World::drawMap(sf::RenderWindow *window) {
             ants.at(i)->getY() >= this->height) {
             std::cout << "out of bounds" << i << std::endl;
             std::swap(ants.at(i), ants.at(ants.size() - 1));
-            delete ants.back();
+            //delete ants.back();
             ants.back() = nullptr;
             ants.pop_back();
         }
@@ -108,11 +144,9 @@ void World::drawMap(sf::RenderWindow *window) {
     }
 
 }
-
-void World::addAnt(Ant ant) {
-    this->ants.push_back(&ant);
-}
-
+/**
+ * @brief Move the Ants object
+ */
 void World::move() {
     for (auto &ant: ants) {
         ant->move();
@@ -120,7 +154,10 @@ void World::move() {
     }
 
 }
-
+/**
+ * @brief Save to File object
+ * @param fileName
+ */
 void World::saveToFile(std::string fileName) {
     std::ofstream file;
     file.open(fileName);
@@ -145,7 +182,11 @@ void World::saveToFile(std::string fileName) {
     file.close();
 
 }
-
+/**
+ * @brief Load from File object
+ * @param fileName
+ * @param lower
+ */
 void World::loadFromFile(std::string &fileName, int lower) {
     std::ifstream file;
     file.open(fileName);
@@ -160,7 +201,7 @@ void World::loadFromFile(std::string &fileName, int lower) {
 
     this->map = std::vector<std::vector<Block>>(height, std::vector<Block>(width));
 
-    this->ants = std::vector<Ant *>();
+    this->ants = std::vector<std::unique_ptr<Ant>>();
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; j++) {
             int blockType;
@@ -171,32 +212,52 @@ void World::loadFromFile(std::string &fileName, int lower) {
     }
     file.close();
 }
-
+/**
+ * @brief Get the Number Of Ants object
+ * @return
+ */
 int World::getNumberOfAnts() {
     return this->ants.size();
 }
-
+/**
+ * @brief Construct a new World:: World object
+ * @param fileName
+ * @param numberOfAnts
+ * @param size
+ */
 World::World(std::string fileName, int numberOfAnts, float size) {
     this->sizeOfBlock = size;
     this->loadFromFile(fileName, size);
     float scale = static_cast<float>(this->sizeOfBlock) / 960;
     for (int i = 0; i < numberOfAnts; ++i) {
-        Ant *a = new Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
+        //Ant *a = new Ant(this->getBlock(rand() % 10, rand() % 10), UP, true, this->sizeOfBlock);
+        std::unique_ptr<Ant> a(new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true,
+                                       this->sizeOfBlock));
         a->setColor(A_BLACK);
         a->scale(scale, scale);
         a->goTo(a->getX() * this->sizeOfBlock, a->getY() * this->sizeOfBlock);
-        ants.push_back(a);
+        ants.push_back(std::move(a));
     }
 }
-
+/**
+ * @brief Set the Ants Logic object
+ * @param logic
+ */
 void World::setAntsLogic(int logic) {
     this->logicOfAnts = logic;
 }
-
+/**
+ * @brief Set the Ant Color object
+ * @param color
+ * @param antIndex
+ */
 void World::setAntColor(ColoredAnt color, int antIndex) {
     this->ants.at(antIndex)->setColor(color);
 }
 
+/**
+ * @brief Collision Detection object
+ */
 void World::collisionDetection() {
     for (int i = 0; i < this->ants.size(); ++i) {
         for (int j = i + 1; j < this->ants.size(); ++j) {
@@ -206,14 +267,14 @@ void World::collisionDetection() {
                 std::cout << this->ants.size() << " collision ";
                 switch (logicOfAnts) {
                     case 0:
-                        delete ants.at(i);
+                        //delete ants.at(i);
                         ants.at(i) = nullptr;
                         ants.erase(ants.begin() + i);
                         break;
                     case 1:
-                        delete ants.at(i);
+                        //delete ants.at(i);
                         ants.at(i) = nullptr;
-                        delete ants.at(j);
+                        //delete ants.at(j);
                         ants.at(j) = nullptr;
 
                         std::swap(ants.at(i), ants.at(ants.size() - 1));
@@ -232,18 +293,32 @@ void World::collisionDetection() {
     }
 }
 
+/**
+ * @brief Get the Ants object
+ * @return
+ */
 bool World::isPaused() const {
     return paused;
 }
-
+/**
+ * @brief Set the Paused object
+ * @param paused
+ */
 void World::setPaused(bool paused) {
     World::paused = paused;
 }
-
+/**
+ * @brief Set the Size Of Block object
+ * @param size
+ */
 void World::setSizeOfBlock(float size) {
     this->sizeOfBlock = size;
 }
-
+/**
+ * @brief Get the Vertex Array object
+ * @param size
+ * @return
+ */
 sf::VertexArray World::getVertexArray(float size) {
     sf::VertexArray vertexArray(sf::Quads, 4 * height * width);
     for (int i = 0; i < height; ++i) {
@@ -268,48 +343,67 @@ sf::VertexArray World::getVertexArray(float size) {
 
     return vertexArray;
 }
-
+/**
+ * @brief Get the Size Of Block object
+ * @return
+ */
 float World::getSizeOfBlock() const {
     return this->sizeOfBlock;
 }
-
+/**
+ * @brief Set the Block Size object
+ * @param size
+ */
 void World::setBlockSize(int size) {
     this->sizeOfBlock = size;
 }
-
+/**
+ * @brief Change the Behaviour of Ants object
+ */
 void World::changeAntBehaviour() {
     for (auto &ant: this->ants) {
         ant->changeBehavior();
     }
 }
-
+/**
+ * @brief Change the Behaviour Of Ants object
+ */
 void World::changeBehaviourOfAnts() {
     for (auto &ant: this->ants) {
         ant->changeBehavior();
     }
 }
-
+/**
+ * @brief Thread Moving object
+ * @param world
+ */
 void World::threadAntMovement() {
     while (this->getNumberOfAnts() > 0) {
-        std::unique_lock<std::mutex> globalLock(this->worldMutex);
-        while (this->isPaused()) {
-            this->worldCv.wait(globalLock);
+        {
+            std::unique_lock<std::mutex> globalLock(this->worldMutex);
+            while (this->isPaused()) {
+                this->worldCv.wait(globalLock);
+            }
+            this->move();
+            //globalLock.unlock();
+            this->worldCv.notify_one();
         }
-        this->move();
-        globalLock.unlock();
-        this->worldCv.notify_one();
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
 }
-
+/**
+ * @brief Thread Display object
+ * @param world
+ */
 void World::threadDisplay() {
     sf::RenderWindow window(
             sf::VideoMode(sf::VideoMode::getDesktopMode().width, 0.9 * sf::VideoMode::getDesktopMode().height),
             "SFML Fullscreen Windowed");
     window.setPosition(sf::Vector2i(0, 0));
     Button uploadMapButton(20, sf::VideoMode::getDesktopMode().height * 0.85, 100, 50, "Upload Map");
+    bool escapePressed = false;
 
-    while (window.isOpen() && this->getNumberOfAnts() > 0) {
+    while (window.isOpen() && this->getNumberOfAnts() > 0 || !escapePressed) {
 
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -333,9 +427,12 @@ void World::threadDisplay() {
                     if (event.text.unicode == 112) {
                         this->setPaused(!this->isPaused());
                         this->worldCv.notify_one();
-                    }
-                    if (event.text.unicode == 105) {
+                    } else if (event.text.unicode == 105) {
                         this->changeAntBehaviour();
+                    } else if (event.text.unicode == 27) {
+                        escapePressed = true;
+                        //this->worldCv.notify_one();
+                        break;
                     }
 
                 }
@@ -353,7 +450,6 @@ void World::threadDisplay() {
             }
         }
         {
-
             std::unique_lock<std::mutex> locker(this->worldMutex);
             window.clear();
             this->drawMap(&window);
@@ -362,8 +458,14 @@ void World::threadDisplay() {
         }
 
     }
+    window.close();
 }
 
+/**
+ * @brief Upload Map object
+ * @param mapName
+ * @param port
+ */
 void World::uploadMap(std::string &mapName, short port) {
 
     this->saveToFile(mapName);
@@ -374,7 +476,11 @@ void World::uploadMap(std::string &mapName, short port) {
     mySocket = nullptr;
 
 }
-
+/**
+ * @brief Convert File To String object
+ * @param filename
+ * @return
+ */
 std::string World::convertFileToString(const std::string &filename) {
     std::ifstream file(filename);
     std::stringstream buffer;
@@ -389,14 +495,12 @@ std::string World::convertFileToString(const std::string &filename) {
     return buffer.str();
 
 }
-
-std::vector<Ant *> World::getAnts() {
-    return this->ants;
-}
-
+/**
+ * @brief Destroy the World:: World object
+ */
 World::~World() {
     for (auto &ant: this->ants) {
-        delete ant;
+        //delete ant;
         ant = nullptr;
     }
 }

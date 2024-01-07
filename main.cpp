@@ -10,7 +10,10 @@
 #include <sstream>
 #include <fstream>
 
-
+/**
+ * Convert string to file
+ * @param str
+ */
 void convertStringToFile(const char *str) {
     std::istringstream iss(str);
     std::string filename;
@@ -27,6 +30,11 @@ void convertStringToFile(const char *str) {
     std::cout << "File saved: " << filename << "\n";
 }
 
+/**
+ * Download map from server
+ * @param mapName
+ * @param port
+ */
 void downloadMap(std::string &mapName, short port) {
     MySocket *mySocket = MySocket::createConnection("frios2.fri.uniza.sk", port);
     std::string message = "GET/" + mapName;
@@ -38,11 +46,19 @@ void downloadMap(std::string &mapName, short port) {
     convertStringToFile(response.c_str());
 }
 
-
+/**
+ * Thread for displaying
+ * @param mapName
+ * @param port
+ */
 void threadDisplay(World &world) {
     world.threadDisplay();
 }
 
+/**
+ * Thread for moving
+ * @param world
+ */
 void threadMoving(World &world) {
     world.threadAntMovement();
 }

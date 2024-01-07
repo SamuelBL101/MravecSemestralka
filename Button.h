@@ -7,9 +7,19 @@
 
 #include <iostream>
 #include "SFML/Graphics.hpp"
-
+/**
+ * Class representing button
+ */
 class Button {
 public:
+    /**
+     * Constructor
+     * @param x x position of button
+     * @param y y position of button
+     * @param width width of button
+     * @param height height of button
+     * @param text text of button
+     */
     Button(float x, float y, float width, float height, const std::string &text) {
         if (!font.loadFromFile("fonts/OpenSans-Light.ttf")) {
             std::cout << "Error loading font" << std::endl;
@@ -26,12 +36,20 @@ public:
 
         isPressed = false;
     }
-
+    /**
+     * Draw button
+     * @param window window where button will be drawn
+     */
     void draw(sf::RenderWindow &window) {
         window.draw(rect);
         window.draw(buttonText);
     }
 
+    /**
+     * Check if mouse is over button
+     * @param mousePos position of mouse
+     * @return true if mouse is over button, false otherwise
+     */
     bool isMouseOver(const sf::Vector2f &mousePos) {
         return rect.getGlobalBounds().contains(mousePos);
     }
@@ -47,11 +65,17 @@ public:
         }
         return false;
     }
-
+    /**
+     * Check if button is pressed
+     * @return true if button is pressed, false otherwise
+     */
     bool isPressedButton() {
         return this->isPressed;
     }
-
+    /**
+     * Set text of button
+     * @param text text of button
+     */
     void setText(const std::string &text) {
         buttonText.setString(text);
     }

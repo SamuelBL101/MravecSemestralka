@@ -6,12 +6,18 @@
 #define MRAVECSEMESTRALKA_BLOCKTYPE_H
 
 #include <string>
-
+/**
+ * Enum for block type
+ */
 enum BlockType {
     WHITE = 0,
     BLACK = 1
 };
-
+/**
+ * Convert block type to string
+ * @param blockType
+ * @return
+ */
 inline std::string to_string(BlockType blockType) {
     switch (blockType) {
         case WHITE:
