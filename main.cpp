@@ -65,12 +65,6 @@ void threadMoving(World &world) {
 
 
 int main() {
-//    const char *str = "suborrr.txt;3 3;0 1 0;1 1 1;0 0 0;";
-//    std::string filename = "mapz.txt";
-//    downloadMap(filename, 18888);
-
-//    std::string filename2 = "mapz.txt";
-//    uploadMap(filename2, 18888);
     bool loadMapFromFile = false;
     // FALSE = biela mapa, TRUE = random mapa
     bool typeOfMap = false;
@@ -144,7 +138,6 @@ int main() {
                         break;
                 }
             } else if (downloadMapButton.handleEvent(event)) {
-                //!stiahnutie mapy
                 std::string filename = "mapz.txt";
                 downloadMap(filename, 18888);
             } else if (event.type == sf::Event::TextEntered) {
@@ -176,21 +169,7 @@ int main() {
             break;
         }
         window.clear(sf::Color::White);
-//        if (parameters[2] != "" && parameters[3] != "") {
-//            int width = std::stoi(parameters[2]);
-//            int height = std::stoi(parameters[3]);
-//            std::vector<std::vector<sf::RectangleShape>> rectMap(height, std::vector<sf::RectangleShape>(width));
-//
-//            for (int i = 0; i < height; ++i) {
-//                for (int j = 0; j < width; ++j) {
-//                    rectMap[i][j].setSize(sf::Vector2f(50.f, 50.f));
-//                    rectMap[i][j].setPosition(50 + j * 50.f, 500 + i * 50.f);
-//                    rectMap[i][j].setOutlineColor(sf::Color::Blue);
-//                    rectMap[i][j].setOutlineThickness(2);
-//                    window.draw(rectMap[i][j]);
-//                }
-//            }
-//        }
+
         loadMapButton.draw(window);
         for (auto button: buttons) {
             button.draw(window);

@@ -45,9 +45,8 @@ World::World(int width, int height, int numberOfAnts, bool random, float size) {
     }
 
     float scale = static_cast<float>(size) / 960;
-    //Ant a = Ant(this->getBlock(width / 2, height/2), UP, true, this->sizeOfBlock);
+
     for (int i = 0; i < numberOfAnts; ++i) {
-        //Ant *a = new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true, this->sizeOfBlock);
         std::unique_ptr<Ant> a(new Ant(this->getBlock(std::rand() % width, std::rand() % height), UP, true,
                                        this->sizeOfBlock));
         a->setColor(A_BLUE);
@@ -168,11 +167,7 @@ void World::saveToFile(std::string fileName) {
         std::cout << "File opened successfully" << std::endl;
     }
     file << this->width << " " << this->height << std::endl;
-    /*
-    for (auto &ant: *this->ants) {
-        file << ant->toString() << std::endl;
-    }
-     */
+
     for (int i = 0; i < this->height; ++i) {
         for (int j = 0; j < this->width; ++j) {
             file << this->map[i][j].getBlockType() << " ";

@@ -105,7 +105,7 @@ void MySocket::sendData(const std::string &data) {
  * @return
  */
 std::string MySocket::receiveData() const {
-    char buffer[1024*2];
+    char buffer[1024*5];
     ZeroMemory(buffer, sizeof(buffer));
 
     int iResult = recv(connectSocket, buffer, sizeof(buffer), 0);
